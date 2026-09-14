@@ -21,6 +21,7 @@
 # misc
 .DS_Store
 *.pem
+*.log
 
 # debug
 npm-debug.log*
@@ -29,11 +30,16 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # env files
-.env*.local
 .env
+.env*.local
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
+next-env.d.ts
+
+# Local feed cache (pulled read-only from AG; never publisher-of-record)
+/content/improve
+/.cache/ag-feeds
