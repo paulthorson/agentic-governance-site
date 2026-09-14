@@ -204,8 +204,9 @@ export function HomeView({
               />
             </HStack>
             <Text type="supporting" color="secondary">
-              T&Cs stub + lawyer review before ship. Look pixels HOLD (#39) —
-              this is the current dashboard face, not a redesign.
+              Get AG uses clickwrap on /terms (DRAFT — lawyer review required
+              before ship). Look pixels HOLD (#39) — current face, not a
+              redesign.
             </Text>
           </VStack>
         </Card>

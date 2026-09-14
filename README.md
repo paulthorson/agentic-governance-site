@@ -17,9 +17,11 @@ Marketing + living board + admin twin for **Agentic Governance**.
 ## Get AG + Terms (Paul LOCK)
 
 1. Public **Get AG** CTAs route to [`/terms`](./src/app/terms/page.tsx) first.
-2. `/terms` is a **stub** gate (liability + anonymous-improve basics).
-3. **Lawyer review before ship** — stub wording is not legal counsel; replace before public launch.
-4. After terms, download always targets `https://github.com/paulthorson/agentic-governance` — never this site repo.
+2. `/terms` is a **DRAFT stub / outline** only — banner: **DRAFT — lawyer review required before ship**.
+3. **Clickwrap required** before the download CTA enables (Paul LOCK).
+4. **Never ship ToS without counsel** — replace stub after lawyer review; not legal advice.
+5. After clickwrap accept, download always targets `https://github.com/paulthorson/agentic-governance` — never this site repo.
+6. Look pixels HOLD (#39) — no redesign on this path.
 
 ## Feeds (read-only consume)
 
