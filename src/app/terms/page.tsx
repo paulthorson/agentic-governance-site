@@ -1,3 +1,5 @@
+'use client';
+
 import {AppShell} from '@astryxdesign/core/AppShell';
 import {Button} from '@astryxdesign/core/Button';
 import {Icon} from '@astryxdesign/core/Icon';
