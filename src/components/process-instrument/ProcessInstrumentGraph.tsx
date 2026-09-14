@@ -119,14 +119,6 @@ function makeLabelTexture(text: string, emphasis: boolean): THREE.CanvasTexture 
   return texture;
 }
 
-/** Fluid arc between two loop nodes — depth via mid-point z lift. */
-function loopCurve(a: THREE.Vector3, b: THREE.Vector3, lift: number) {
-  const mid = a.clone().lerp(b, 0.5);
-  mid.z += lift;
-  mid.y += (a.y + b.y) * 0.04;
-  return new THREE.CatmullRomCurve3([a, mid, b]);
-}
-
 export function ProcessInstrumentGraph({
   mode,
   activeChapter,
@@ -254,11 +246,11 @@ export function ProcessInstrumentGraph({
       const height = Math.max(host.clientHeight || 640, 1);
 
       const scene = new THREE.Scene();
-      scene.fog = new THREE.FogExp2(VOID, 0.038);
+      scene.fog = new THREE.FogExp2(VOID, 0.034);
 
       // Oblique perspective so land reads true-3D (not a flat polygon kit).
-      const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
-      camera.position.set(2.05, 1.55, 5.35);
+      const camera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
+      camera.position.set(2.55, 2.05, 4.85);
       camera.lookAt(0.05, 0.05, 0);
       resizeCamera = (w, h) => {
         camera.aspect = w / h;
@@ -282,6 +274,15 @@ export function ProcessInstrumentGraph({
       canvas.style.height = '100%';
       host.appendChild(canvas);
       canvas.addEventListener('webglcontextlost', onContextLost, false);
+
+      // Soft volume on tubes — sells depth without glow-as-craft spectacle.
+      scene.add(new THREE.AmbientLight(0xb8c0ba, 0.55));
+      const key = new THREE.DirectionalLight(0xffffff, 0.7);
+      key.position.set(4.2, 5.5, 3.2);
+      scene.add(key);
+      const fill = new THREE.DirectionalLight(0x8a9a8e, 0.25);
+      fill.position.set(-3.5, -1.5, 2.5);
+      scene.add(fill);
 
       const root = new THREE.Group();
       scene.add(root);
@@ -338,20 +339,13 @@ export function ProcessInstrumentGraph({
         labelSprites.set(node.id, sprite);
       }
 
-      const loopEdges: Array<[string, string]> = [];
-      for (let i = 0; i < LOOP_ORDER.length; i += 1) {
-        const a = LOOP_ORDER[i];
-        const b = LOOP_ORDER[(i + 1) % LOOP_ORDER.length];
-        loopEdges.push([a, b]);
-      }
-
       const contextLines: THREE.Line[] = [];
       for (const [a, b] of CONTEXT_EDGES) {
         const pa = nodeMap.get(a);
         const pb = nodeMap.get(b);
         if (!pa || !pb) continue;
         const mid = pa.clone().lerp(pb, 0.5);
-        mid.z += (pa.z + pb.z) * 0.08 + (Math.random() - 0.5) * 0.15;
+        mid.z += (pa.z + pb.z) * 0.08 + ((a.length + b.length) % 7) * 0.02 - 0.06;
         const curve = new THREE.CatmullRomCurve3([pa, mid, pb]);
         const pts = curve.getPoints(10);
         const line = new THREE.Line(
@@ -368,66 +362,72 @@ export function ProcessInstrumentGraph({
         contextLines.push(line);
       }
 
-      // Active path: sage tube + white wash tube INSIDE stroke (not a bead object).
-      const washTubes: THREE.Mesh[] = [];
-      const pathStrokes: THREE.Mesh[] = [];
-      for (let i = 0; i < loopEdges.length; i += 1) {
-        const [a, b] = loopEdges[i];
-        const pa = nodeMap.get(a);
-        const pb = nodeMap.get(b);
-        if (!pa || !pb) continue;
-
-        const curve = loopCurve(pa, pb, 0.22 + (i % 2) * 0.08);
-        const stroke = new THREE.Mesh(
-          trackGeo(new THREE.TubeGeometry(curve, 28, 0.032, 10, false)),
-          trackMat(
-            new THREE.MeshBasicMaterial({
-              color: SAGE,
-              transparent: true,
-              opacity: 0.62,
-            }),
-          ),
-        );
-        root.add(stroke);
-        pathStrokes.push(stroke);
-
-        const wash = new THREE.Mesh(
-          trackGeo(new THREE.TubeGeometry(curve, 28, 0.014, 8, false)),
-          trackMat(
-            new THREE.MeshBasicMaterial({
-              color: WASH,
-              transparent: true,
-              opacity: 0.55,
-            }),
-          ),
-        );
-        root.add(wash);
-        washTubes.push(wash);
+      // ONE closed loop tube — open segment ends at joints read as beads (FAIL).
+      const loopPts: THREE.Vector3[] = [];
+      for (const id of LOOP_ORDER) {
+        const p = nodeMap.get(id);
+        if (p) loopPts.push(p.clone());
       }
+      const closedLoop = new THREE.CatmullRomCurve3(loopPts, true, 'catmullrom', 0.35);
+      const strokeMat = trackMat(
+        new THREE.MeshLambertMaterial({
+          color: SAGE,
+          transparent: true,
+          opacity: 0.72,
+          depthWrite: false,
+        }),
+      );
+      const washMat = trackMat(
+        new THREE.MeshLambertMaterial({
+          color: WASH,
+          transparent: true,
+          opacity: 0.55,
+          depthWrite: false,
+        }),
+      );
+      const pathStroke = new THREE.Mesh(
+        trackGeo(new THREE.TubeGeometry(closedLoop, 160, 0.038, 12, true)),
+        strokeMat,
+      );
+      root.add(pathStroke);
+      const washTube = new THREE.Mesh(
+        trackGeo(new THREE.TubeGeometry(closedLoop, 160, 0.016, 10, true)),
+        washMat,
+      );
+      root.add(washTube);
 
-      // Ship mark twitch — path-local luminance pulse, not a joint bead.
-      const shipPos = nodeMap.get('ship');
-      const buildPos = nodeMap.get('build');
-      let shipMark: THREE.Mesh | null = null;
-      if (shipPos && buildPos) {
-        const markCurve = loopCurve(shipPos, buildPos, 0.12);
-        shipMark = new THREE.Mesh(
-          trackGeo(new THREE.TubeGeometry(markCurve, 12, 0.01, 6, false)),
-          trackMat(
-            new THREE.MeshBasicMaterial({
-              color: WASH,
-              transparent: true,
-              opacity: 0.35,
-            }),
+      // Neighbor accents: mid-span only (no open ends at joints).
+      const neighborMats: THREE.MeshLambertMaterial[] = [];
+      for (let i = 0; i < LOOP_ORDER.length; i += 1) {
+        const a = nodeMap.get(LOOP_ORDER[i]);
+        const b = nodeMap.get(LOOP_ORDER[(i + 1) % LOOP_ORDER.length]);
+        if (!a || !b) continue;
+        const p0 = a.clone().lerp(b, 0.18);
+        const p1 = a.clone().lerp(b, 0.5);
+        p1.z += 0.18;
+        const p2 = a.clone().lerp(b, 0.82);
+        const seg = new THREE.CatmullRomCurve3([p0, p1, p2]);
+        const mat = trackMat(
+          new THREE.MeshLambertMaterial({
+            color: WASH,
+            transparent: true,
+            opacity: 0,
+            depthWrite: false,
+          }),
+        );
+        root.add(
+          new THREE.Mesh(
+            trackGeo(new THREE.TubeGeometry(seg, 16, 0.02, 8, false)),
+            mat,
           ),
         );
-        root.add(shipMark);
+        neighborMats.push(mat);
       }
 
       const clock = new THREE.Clock();
-      const landCam = new THREE.Vector3(2.05, 1.55, 5.35);
-      const hoverCam = new THREE.Vector3(1.55, 1.15, 4.55);
-      const inspectCam = new THREE.Vector3(1.05, 0.85, 3.65);
+      const landCam = new THREE.Vector3(2.55, 2.05, 4.85);
+      const hoverCam = new THREE.Vector3(1.85, 1.45, 4.15);
+      const inspectCam = new THREE.Vector3(1.15, 0.95, 3.35);
       const camTarget = landCam.clone();
       window.addEventListener('resize', onResize);
 
@@ -441,11 +441,11 @@ export function ProcessInstrumentGraph({
             stateRef.current;
 
           // Continuous slight drift — living instrument, not a static diagram.
-          root.rotation.y = Math.sin(t * 0.11) * 0.16 + 0.42;
-          root.rotation.x = Math.sin(t * 0.08) * 0.1 + 0.18;
-          root.rotation.z = Math.cos(t * 0.07) * 0.04;
-          root.position.y = Math.sin(t * 0.14) * 0.07;
-          root.position.x = Math.cos(t * 0.1) * 0.06;
+          root.rotation.y = Math.sin(t * 0.11) * 0.18 + 0.48;
+          root.rotation.x = Math.sin(t * 0.08) * 0.12 + 0.22;
+          root.rotation.z = Math.cos(t * 0.07) * 0.05;
+          root.position.y = Math.sin(t * 0.14) * 0.08;
+          root.position.x = Math.cos(t * 0.1) * 0.07;
 
           const inspect = m === 'inspect';
           const hover = m === 'hover' || inspect;
@@ -461,25 +461,23 @@ export function ProcessInstrumentGraph({
             camera.lookAt(0.05, 0.05, 0);
           }
 
-          for (let i = 0; i < LOOP_ORDER.length; i += 1) {
-            const id = LOOP_ORDER[i];
-            const stroke = pathStrokes[i];
-            const wash = washTubes[i];
-            if (!stroke || !wash) continue;
-            const isNeighbor =
-              !chapter ||
-              id === chapter ||
-              LOOP_ORDER[(i + LOOP_ORDER.length - 1) % LOOP_ORDER.length] ===
-                chapter ||
-              LOOP_ORDER[(i + 1) % LOOP_ORDER.length] === chapter;
-            const strokeMat = stroke.material as THREE.MeshBasicMaterial;
-            const washMat = wash.material as THREE.MeshBasicMaterial;
-            if (hover && chapter) {
-              strokeMat.opacity = isNeighbor ? 0.82 : 0.16;
-              washMat.opacity = isNeighbor ? 0.72 : 0.08;
-            } else {
-              strokeMat.opacity = 0.58;
-              washMat.opacity = 0.48 + Math.sin(t * 0.85 + i) * 0.08;
+          if (hover && chapter) {
+            strokeMat.opacity = 0.28;
+            washMat.opacity = 0.14;
+            for (let i = 0; i < LOOP_ORDER.length; i += 1) {
+              const id = LOOP_ORDER[i];
+              const isNeighbor =
+                id === chapter ||
+                LOOP_ORDER[(i + LOOP_ORDER.length - 1) % LOOP_ORDER.length] ===
+                  chapter ||
+                LOOP_ORDER[(i + 1) % LOOP_ORDER.length] === chapter;
+              neighborMats[i].opacity = isNeighbor ? 0.7 : 0;
+            }
+          } else {
+            strokeMat.opacity = 0.7;
+            washMat.opacity = 0.48 + Math.sin(t * 0.85) * 0.08;
+            for (const mat of neighborMats) {
+              mat.opacity = 0;
             }
           }
 
@@ -488,23 +486,18 @@ export function ProcessInstrumentGraph({
             mat.opacity = hover ? 0.38 : 0.24;
           }
 
-          if (shipMark) {
-            const mat = shipMark.material as THREE.MeshBasicMaterial;
-            if (twitch) {
-              mat.opacity = 0.45 + Math.sin(t * 10) * 0.35;
-              shipMark.scale.setScalar(1 + Math.sin(t * 10) * 0.08);
-            } else {
-              mat.opacity = 0.28;
-              shipMark.scale.setScalar(1);
-            }
-          }
-
           const shipLabel = labelSprites.get('ship');
           if (shipLabel) {
             const labelMat = shipLabel.material as THREE.SpriteMaterial;
             labelMat.opacity = twitch
-              ? 0.75 + Math.sin(t * 10) * 0.25
+              ? 0.7 + Math.sin(t * 10) * 0.3
               : 1;
+            const base = 1.05;
+            shipLabel.scale.set(
+              twitch ? base * (1 + Math.sin(t * 10) * 0.06) : base,
+              twitch ? 0.26 * (1 + Math.sin(t * 10) * 0.06) : 0.26,
+              1,
+            );
           }
 
           rain.rotation.y = t * 0.018;
