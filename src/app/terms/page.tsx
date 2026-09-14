@@ -20,21 +20,21 @@ import {
 import {CubeIcon} from '@heroicons/react/24/outline';
 
 const REPO_URL = 'https://github.com/paulthorson/agentic-governance';
-/** AG #57 MERGED LIVE @ 9b5bcd9 — DRAFT outline SoT only (not production ToS). */
+const LICENSE_URL = `${REPO_URL}/blob/main/LICENSE`;
+/** AG #57 MERGED LIVE @ 9b5bcd9 — DRAFT outline SoT until superseding AG docs amend lands. */
 const OUTLINE_SOT_URL =
   'https://github.com/paulthorson/agentic-governance/blob/9b5bcd9/docs/legal/get-ag-terms-outline.md';
 const OUTLINE_PR_URL =
   'https://github.com/paulthorson/agentic-governance/pull/57';
 
 /**
- * Site T&Cs stub for Get AG — cites AG DRAFT outline SoT only.
- * SoT: docs/legal/get-ag-terms-outline.md — AG #57 MERGED LIVE @ 9b5bcd9
- * Production ToS NOT until licensed attorney.
- * Paul LOCK: clickwrap required (FAIL browsewrap). Get AG CTA pixels HOLD.
- * Look pixels HOLD — no #39 redesign.
+ * Get AG clickwrap stub — Cos LOCK Paul: MIT-only / no default telemetry.
+ * Clickwrap = as-is Terms accept only (NOT anonymous-improve / telemetry trade).
+ * Outline SoT: AG #57 @ 9b5bcd9 until superseding amend tip (bc-e4300373) lands.
+ * Production ToS NOT until licensed attorney. Stay DRAFT. Look HOLD — no #39.
  */
 export default function TermsPage() {
-  // Outline §2: unchecked-by-default; never pre-check.
+  // Unchecked by default; never pre-check (FAIL browsewrap / dark pattern).
   const [accepted, setAccepted] = useState(false);
 
   return (
@@ -65,60 +65,60 @@ export default function TermsPage() {
         <Banner
           status="warning"
           title="DRAFT — lawyer review required before ship"
-          description="Production ToS NOT until a licensed attorney drafts operative language. This page is a stub citing the AG outline SoT only — not legal advice, not enforceable counsel work."
+          description="Production ToS NOT until a licensed attorney drafts operative language. This page is a stub — not legal advice, not enforceable counsel work."
         />
 
         <VStack gap={2}>
           <Text type="supporting" color="secondary">
-            DRAFT stub · cites AG #57 @ 9b5bcd9 · not counsel-approved
+            DRAFT stub · Cos LOCK MIT-only · no default telemetry
           </Text>
           <Heading level={1} type="display-3" textWrap="balance">
             Terms before Get AG
           </Heading>
           <Text type="body" color="secondary" textWrap="balance">
-            Get AG requires clickwrap acceptance before download (FAIL
-            browsewrap). Download targets the product repo only — never this
+            Clickwrap here is as-is Terms accept only — not a data trade.
+            Download targets the MIT-licensed product repo only — never this
             marketing site.
           </Text>
         </VStack>
 
         <Banner
           status="info"
-          title="Outline SoT (AG #57 MERGED LIVE @ 9b5bcd9)"
-          description="Product intent lives in docs/legal/get-ag-terms-outline.md on agentic-governance. Site stub must cite that outline — never invent production ToS here."
+          title="Cos LOCK — MIT-only / no default telemetry"
+          description="Get AG download does not require anonymous-improve, telemetry, or any data-as-price. Acceptance is Terms (as-is) only. AG docs amend tip in flight (bc-e4300373); until it lands, cite AG #57 DRAFT outline SoT."
         />
 
         <Card padding={6} elevation="med">
           <VStack gap={4} hAlign="start">
             <HStack gap={2} vAlign="center">
               <Icon icon={ScaleIcon} size="md" />
-              <Heading level={2}>Stub summary (outline intent only)</Heading>
+              <Heading level={2}>As-is Terms accept (stub)</Heading>
             </HStack>
             <Text type="supporting" color="secondary">
-              Plain-English placeholders from the AG outline — counsel replaces
-              these before ship. Governing law intent: Delaware (Paul LOCK).
+              Intent placeholders only — counsel replaces before ship.
             </Text>
             <List>
-              <ListItem label="Acceptance: Get AG / download requires affirmative clickwrap; browsing alone is not acceptance (§1–2)." />
-              <ListItem label="Free AG + anonymous improve basics default on; richer diagnostics opt-in; never secrets/PII/host paths (§3)." />
-              <ListItem label="As-is / no warranty; operator assumes use risk — liability language by counsel (§4)." />
-              <ListItem label="AG IP stays with AG; code license on the product repo remains authoritative once counsel aligns (§5)." />
-              <ListItem label="Governing law intent: Delaware — do not invent venue/city beyond that without Paul + counsel (§7)." />
+              <ListItem label="Clickwrap = as-is Terms accept only (FAIL browsewrap). Not an anonymous-improve or telemetry trade." />
+              <ListItem label="MIT-only product license — no default telemetry on Get AG." />
+              <ListItem label="MIT license on the product repo is authoritative for code licensing." />
+              <ListItem label="As-is / no warranty; operator assumes use risk — liability language by counsel." />
+              <ListItem label="Governing law intent: Delaware (Paul LOCK) — do not invent venue/city beyond that without Paul + counsel." />
               <ListItem label="Download / clone only at github.com/paulthorson/agentic-governance — never this site repo." />
             </List>
 
             <HStack gap={3} wrap="wrap">
+              <Button label="MIT LICENSE on AG" variant="secondary" href={LICENSE_URL} />
               <Button
-                label="Open DRAFT outline SoT on AG"
-                variant="secondary"
+                label="DRAFT outline SoT (#57)"
+                variant="ghost"
                 href={OUTLINE_SOT_URL}
               />
               <Button label="AG PR #57" variant="ghost" href={OUTLINE_PR_URL} />
             </HStack>
 
             <CheckboxInput
-              label="I have read this DRAFT stub (citing AG outline #57 @ 9b5bcd9) and agree to continue to Get AG"
-              description="Paul LOCK: clickwrap required before download. Unchecked by default. Production ToS NOT until licensed attorney."
+              label="I accept these DRAFT as-is Terms to continue to Get AG"
+              description="Cos LOCK: MIT-only / no default telemetry. Clickwrap is Terms accept only — not a telemetry or anonymous-improve trade. Unchecked by default. Production ToS NOT until licensed attorney."
               value={accepted}
               isRequired
               onChange={(checked) => setAccepted(checked)}
@@ -143,7 +143,8 @@ export default function TermsPage() {
             </HStack>
             {!accepted ? (
               <Text type="supporting" color="secondary">
-                Accept the clickwrap checkbox before download (browsewrap FAIL).
+                Accept as-is Terms (clickwrap) before download — not a data
+                trade.
               </Text>
             ) : null}
           </VStack>

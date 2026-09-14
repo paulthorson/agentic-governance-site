@@ -1,36 +1,32 @@
-# Terms gate (Get AG) — DRAFT stub citing AG outline SoT
+# Terms gate (Get AG) — DRAFT stub (MIT-only / no default telemetry)
 
-**Paul LOCK:** Get AG requires **clickwrap** on `/terms` before download (**FAIL browsewrap**).
+**Cos LOCK Paul:** Get AG is **MIT-only** with **no default telemetry**.
 
 | Rule | Detail |
 |---|---|
 | Route | `/terms` |
-| Clickwrap | Required — unchecked by default; download CTA disabled until accept |
-| Download target after accept | `https://github.com/paulthorson/agentic-governance` |
+| Clickwrap | **As-is Terms accept only** — unchecked by default; unlocks download |
+| Not clickwrap | Anonymous-improve consent, telemetry opt-in, or any data-as-price-of-download |
+| License | **MIT** on product repo (`LICENSE`) |
+| Governing law intent | **Delaware** (Paul LOCK) — counsel drafts; no invented venue/city |
+| Download target | `https://github.com/paulthorson/agentic-governance` |
 | Never | Point Get AG at this marketing repo as the product download |
 | Ship gate | **Production ToS NOT until licensed attorney** |
 
-## Outline SoT (cite this — do not invent production ToS)
+## Outline SoT
 
 | | |
 |---|---|
-| **AG tip** | [#57](https://github.com/paulthorson/agentic-governance/pull/57) **MERGED LIVE** @ `9b5bcd9` |
-| **Path on AG** | [`docs/legal/get-ag-terms-outline.md`](https://github.com/paulthorson/agentic-governance/blob/9b5bcd9/docs/legal/get-ag-terms-outline.md) |
-| **Status** | **DRAFT product outline — NOT legal advice** |
-| **This site file** | Stub / gate UX only — cites the AG outline; never ships as production ToS |
+| **Current SoT** | AG [#57](https://github.com/paulthorson/agentic-governance/pull/57) **MERGED LIVE** @ `9b5bcd9` → [`docs/legal/get-ag-terms-outline.md`](https://github.com/paulthorson/agentic-governance/blob/9b5bcd9/docs/legal/get-ag-terms-outline.md) |
+| **Superseding** | AG docs amend tip in flight (`bc-e4300373`) — cite when available; until then #57 remains SoT |
+| **This site file** | Stub / gate UX only — never ships as production ToS |
 
 ## DRAFT — lawyer review required before ship
 
-- Page banner must read: **DRAFT — lawyer review required before ship**
-- **Never ship ToS without counsel** — Cos must not treat stub or outline as production until licensed attorney review
-- Do not copy-paste third-party Terms; counsel writes operative language
-- Governing law intent in outline: **Delaware** (Paul LOCK) — do not invent venue/city beyond that
+- Banner: **DRAFT — lawyer review required before ship**
+- Counsel unpaid → keep site PR **draft** until Cos undrafts
+- Do not copy-paste third-party Terms
 
 ## Get AG CTA pixels HOLD
 
-Eng **HOLD** polished Get AG CTA pixels until the clickwrap path is clear (outline §11 / marketing extract HOLD). Current surface: route Get AG → `/terms` → clickwrap → AG git. No #39 / Process Instrument redesign.
-
-## Related
-
-- AG anonymous-improve epic (privacy floor)
-- Marketing site extract / split epics on AG
+No Get AG CTA pixel polish beyond this clickwrap stub. Look HOLD #39 — no Process Instrument redesign.

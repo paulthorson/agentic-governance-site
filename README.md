@@ -14,15 +14,16 @@ Marketing + living board + admin twin for **Agentic Governance**.
 - Feeds pull **read-only** from AG (traction / improve / scars) — site never invents numbers
 - Meta Astryx remains the UI SoT
 
-## Get AG + Terms (Paul LOCK)
+## Get AG + Terms (Cos LOCK Paul — MIT-only)
 
 1. Public **Get AG** CTAs route to [`/terms`](./src/app/terms/page.tsx) first (**FAIL browsewrap**).
-2. `/terms` is a **DRAFT stub** citing AG outline SoT — [#57](https://github.com/paulthorson/agentic-governance/pull/57) **MERGED LIVE** @ `9b5bcd9` → [`docs/legal/get-ag-terms-outline.md`](https://github.com/paulthorson/agentic-governance/blob/9b5bcd9/docs/legal/get-ag-terms-outline.md).
-3. Banner: **DRAFT — lawyer review required before ship**.
-4. **Clickwrap required** (unchecked by default) before the download CTA enables.
-5. **Production ToS NOT until licensed attorney** — never treat stub/outline as enforceable counsel work.
+2. **Clickwrap = as-is Terms accept only** — **MIT-only / no default telemetry**; **not** an anonymous-improve or telemetry trade.
+3. Pointers on stub: **MIT** `LICENSE` on AG + **Delaware** governing-law intent.
+4. `/terms` is a **DRAFT stub** citing AG outline SoT [#57](https://github.com/paulthorson/agentic-governance/pull/57) @ `9b5bcd9` until superseding AG docs amend (`bc-e4300373`) lands.
+5. Banner: **DRAFT — lawyer review required before ship**. Production ToS NOT until licensed attorney.
 6. After clickwrap accept, download → `https://github.com/paulthorson/agentic-governance` only.
-7. **Get AG CTA pixels HOLD** until clickwrap path is clear; look HOLD #39 — no redesign.
+7. **Get AG CTA pixels HOLD** beyond clickwrap stub; look HOLD #39 — no redesign.
+8. Site PR for this gate stays **draft** until Cos undrafts (counsel unpaid).
 
 
 ## Feeds (read-only consume)

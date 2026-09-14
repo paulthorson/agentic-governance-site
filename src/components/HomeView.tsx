@@ -204,9 +204,9 @@ export function HomeView({
               />
             </HStack>
             <Text type="supporting" color="secondary">
-              Get AG CTA pixels HOLD until clickwrap path. Route → /terms
-              (DRAFT stub cites AG #57 @ 9b5bcd9). Production ToS NOT until
-              licensed attorney. Look HOLD #39.
+              Get AG CTA pixels HOLD. Clickwrap on /terms = as-is Terms accept
+              only (Cos LOCK: MIT-only / no default telemetry). DRAFT — lawyer
+              review required. Look HOLD #39.
             </Text>
           </VStack>
         </Card>
