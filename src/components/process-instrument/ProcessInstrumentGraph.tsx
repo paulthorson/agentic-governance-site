@@ -230,6 +230,7 @@ export function ProcessInstrumentGraph({
     'pending',
   );
   const [mountKey, setMountKey] = useState(0);
+  const retryCountRef = useRef(0);
 
   stateRef.current = {mode, activeChapter, shipTwitch};
 
@@ -237,6 +238,19 @@ export function ProcessInstrumentGraph({
     setPaintState('pending');
     setMountKey((k) => k + 1);
   }, []);
+
+  // Paul LOCK: 3D must persist — auto-remount after soft-fail; never settle on a flat hero.
+  useEffect(() => {
+    if (paintState !== 'fallback') return;
+    if (retryCountRef.current >= 8) return;
+    const attempt = retryCountRef.current;
+    const delay = Math.min(500 + attempt * 600, 3200);
+    const id = window.setTimeout(() => {
+      retryCountRef.current = attempt + 1;
+      retryPaint();
+    }, delay);
+    return () => window.clearTimeout(id);
+  }, [paintState, mountKey, retryPaint]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -316,6 +330,7 @@ export function ProcessInstrumentGraph({
       }
       alive = false;
       tearDownGl(true);
+      // Transient empty only — auto-retry effect remounts true-3D.
       setPaintState('fallback');
     };
 
@@ -725,6 +740,7 @@ export function ProcessInstrumentGraph({
       }
 
       setPaintState('live');
+      retryCountRef.current = 0;
       animate();
 
       return () => {
@@ -766,7 +782,6 @@ export function ProcessInstrumentGraph({
       {paintState !== 'live' ? (
         <InstrumentFallback
           reason={paintState === 'fallback' ? 'unavailable' : 'loading'}
-          onRetry={paintState === 'fallback' ? retryPaint : undefined}
         />
       ) : null}
     </div>
