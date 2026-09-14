@@ -1,32 +1,28 @@
-# Terms gate (Get AG) — DRAFT stub (MIT-only / no default telemetry)
+# Terms gate (Get AG) — DRAFT stub
 
-**Cos LOCK Paul:** Get AG is **MIT-only** with **no default telemetry**.
+**Paul CONFIRMED / Cos LOCK:**
 
-| Rule | Detail |
+| Lock | Detail |
+|---|---|
+| License | **MIT** |
+| Telemetry | **No default telemetry**; opt-in only OK; any telemetry UI **defaults OFF** |
+| Clickwrap | **As-is Terms accept** only (+ as-is absolve intent) |
+| Not clickwrap | Anonymous-improve trade / telemetry-as-price-of-download |
+| Governing law intent | **Delaware** + MIT `LICENSE` pointer |
+| Ship | Production ToS **NOT** until licensed attorney — keep PR **draft** + lawyer banner |
+| Look | HOLD #39 — no Get AG CTA pixel polish beyond clickwrap stub |
+
+| Route rule | Detail |
 |---|---|
 | Route | `/terms` |
-| Clickwrap | **As-is Terms accept only** — unchecked by default; unlocks download |
-| Not clickwrap | Anonymous-improve consent, telemetry opt-in, or any data-as-price-of-download |
-| License | **MIT** on product repo (`LICENSE`) |
-| Governing law intent | **Delaware** (Paul LOCK) — counsel drafts; no invented venue/city |
-| Download target | `https://github.com/paulthorson/agentic-governance` |
-| Never | Point Get AG at this marketing repo as the product download |
-| Ship gate | **Production ToS NOT until licensed attorney** |
+| Download after accept | `https://github.com/paulthorson/agentic-governance` |
+| Never | Site repo as product download |
 
 ## Outline SoT
 
-| | |
-|---|---|
-| **Current SoT** | AG [#57](https://github.com/paulthorson/agentic-governance/pull/57) **MERGED LIVE** @ `9b5bcd9` → [`docs/legal/get-ag-terms-outline.md`](https://github.com/paulthorson/agentic-governance/blob/9b5bcd9/docs/legal/get-ag-terms-outline.md) |
-| **Superseding** | AG docs amend tip in flight (`bc-e4300373`) — cite when available; until then #57 remains SoT |
-| **This site file** | Stub / gate UX only — never ships as production ToS |
+- Current: AG [#57](https://github.com/paulthorson/agentic-governance/pull/57) @ `9b5bcd9` → [`docs/legal/get-ag-terms-outline.md`](https://github.com/paulthorson/agentic-governance/blob/9b5bcd9/docs/legal/get-ag-terms-outline.md)
+- Superseding amend in flight: `bc-e4300373` (cite when available)
 
 ## DRAFT — lawyer review required before ship
 
-- Banner: **DRAFT — lawyer review required before ship**
-- Counsel unpaid → keep site PR **draft** until Cos undrafts
-- Do not copy-paste third-party Terms
-
-## Get AG CTA pixels HOLD
-
-No Get AG CTA pixel polish beyond this clickwrap stub. Look HOLD #39 — no Process Instrument redesign.
+Banner required. Counsel unpaid → stay draft until Cos undrafts.

@@ -28,13 +28,13 @@ const OUTLINE_PR_URL =
   'https://github.com/paulthorson/agentic-governance/pull/57';
 
 /**
- * Get AG clickwrap stub — Cos LOCK Paul: MIT-only / no default telemetry.
- * Clickwrap = as-is Terms accept only (NOT anonymous-improve / telemetry trade).
- * Outline SoT: AG #57 @ 9b5bcd9 until superseding amend tip (bc-e4300373) lands.
- * Production ToS NOT until licensed attorney. Stay DRAFT. Look HOLD — no #39.
+ * Get AG clickwrap — Paul CONFIRMED / Cos LOCK:
+ * MIT · no default telemetry · opt-in only OK · as-is absolve ·
+ * clickwrap = as-is Terms accept · telemetry UI default OFF ·
+ * Delaware + MIT pointer · no anonymous-improve trade.
+ * Production ToS NOT until counsel. Stay DRAFT. Look HOLD — no #39.
  */
 export default function TermsPage() {
-  // Unchecked by default; never pre-check (FAIL browsewrap / dark pattern).
   const [accepted, setAccepted] = useState(false);
 
   return (
@@ -70,22 +70,22 @@ export default function TermsPage() {
 
         <VStack gap={2}>
           <Text type="supporting" color="secondary">
-            DRAFT stub · Cos LOCK MIT-only · no default telemetry
+            DRAFT · Paul CONFIRMED · MIT · no default telemetry
           </Text>
           <Heading level={1} type="display-3" textWrap="balance">
             Terms before Get AG
           </Heading>
           <Text type="body" color="secondary" textWrap="balance">
-            Clickwrap here is as-is Terms accept only — not a data trade.
-            Download targets the MIT-licensed product repo only — never this
-            marketing site.
+            Clickwrap = as-is Terms accept only. Download is MIT-licensed AG —
+            never this marketing site. No telemetry or anonymous-improve trade
+            as the price of download.
           </Text>
         </VStack>
 
         <Banner
           status="info"
-          title="Cos LOCK — MIT-only / no default telemetry"
-          description="Get AG download does not require anonymous-improve, telemetry, or any data-as-price. Acceptance is Terms (as-is) only. AG docs amend tip in flight (bc-e4300373); until it lands, cite AG #57 DRAFT outline SoT."
+          title="Paul CONFIRMED — MIT / no default telemetry"
+          description="Cos LOCK settled: MIT-only product; no default telemetry (opt-in only OK; any telemetry UI defaults OFF). Clickwrap is as-is Terms accept + as-is absolve — not a data trade. Outline SoT AG #57 @ 9b5bcd9 until superseding amend (bc-e4300373) lands."
         />
 
         <Card padding={6} elevation="med">
@@ -98,12 +98,13 @@ export default function TermsPage() {
               Intent placeholders only — counsel replaces before ship.
             </Text>
             <List>
-              <ListItem label="Clickwrap = as-is Terms accept only (FAIL browsewrap). Not an anonymous-improve or telemetry trade." />
-              <ListItem label="MIT-only product license — no default telemetry on Get AG." />
-              <ListItem label="MIT license on the product repo is authoritative for code licensing." />
-              <ListItem label="As-is / no warranty; operator assumes use risk — liability language by counsel." />
-              <ListItem label="Governing law intent: Delaware (Paul LOCK) — do not invent venue/city beyond that without Paul + counsel." />
-              <ListItem label="Download / clone only at github.com/paulthorson/agentic-governance — never this site repo." />
+              <ListItem label="Clickwrap = as-is Terms accept only (FAIL browsewrap)." />
+              <ListItem label="As-is absolve / no warranty — operator assumes use risk; counsel drafts liability." />
+              <ListItem label="Product license: MIT (see LICENSE on AG)." />
+              <ListItem label="No default telemetry. Opt-in only OK; if any telemetry UI exists, it defaults OFF." />
+              <ListItem label="No anonymous-improve trade and no telemetry-as-price-of-download." />
+              <ListItem label="Governing law intent: Delaware (Paul LOCK) — no invented venue/city without Paul + counsel." />
+              <ListItem label="Download / clone only at github.com/paulthorson/agentic-governance." />
             </List>
 
             <HStack gap={3} wrap="wrap">
@@ -118,7 +119,7 @@ export default function TermsPage() {
 
             <CheckboxInput
               label="I accept these DRAFT as-is Terms to continue to Get AG"
-              description="Cos LOCK: MIT-only / no default telemetry. Clickwrap is Terms accept only — not a telemetry or anonymous-improve trade. Unchecked by default. Production ToS NOT until licensed attorney."
+              description="Paul CONFIRMED: MIT · no default telemetry · as-is absolve. Clickwrap is Terms accept only — not a telemetry or anonymous-improve trade. Unchecked by default. Production ToS NOT until licensed attorney."
               value={accepted}
               isRequired
               onChange={(checked) => setAccepted(checked)}
@@ -143,8 +144,7 @@ export default function TermsPage() {
             </HStack>
             {!accepted ? (
               <Text type="supporting" color="secondary">
-                Accept as-is Terms (clickwrap) before download — not a data
-                trade.
+                Accept as-is Terms before download.
               </Text>
             ) : null}
           </VStack>

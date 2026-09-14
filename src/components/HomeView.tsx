@@ -204,8 +204,8 @@ export function HomeView({
               />
             </HStack>
             <Text type="supporting" color="secondary">
-              Get AG CTA pixels HOLD. Clickwrap on /terms = as-is Terms accept
-              only (Cos LOCK: MIT-only / no default telemetry). DRAFT — lawyer
+              Get AG CTA pixels HOLD. /terms clickwrap = as-is Terms accept
+              (Paul CONFIRMED: MIT · no default telemetry). DRAFT — lawyer
               review required. Look HOLD #39.
             </Text>
           </VStack>
