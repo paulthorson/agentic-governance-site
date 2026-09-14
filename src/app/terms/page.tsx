@@ -20,14 +20,21 @@ import {
 import {CubeIcon} from '@heroicons/react/24/outline';
 
 const REPO_URL = 'https://github.com/paulthorson/agentic-governance';
+/** AG #57 MERGED LIVE @ 9b5bcd9 — DRAFT outline SoT only (not production ToS). */
+const OUTLINE_SOT_URL =
+  'https://github.com/paulthorson/agentic-governance/blob/9b5bcd9/docs/legal/get-ag-terms-outline.md';
+const OUTLINE_PR_URL =
+  'https://github.com/paulthorson/agentic-governance/pull/57';
 
 /**
- * Stub T&Cs gate for Get AG.
- * Paul LOCK: clickwrap required before download; counsel required before ship.
- * Outline tip in flight elsewhere (bc-47307f02) — this page stays stub/DRAFT only.
+ * Site T&Cs stub for Get AG — cites AG DRAFT outline SoT only.
+ * SoT: docs/legal/get-ag-terms-outline.md — AG #57 MERGED LIVE @ 9b5bcd9
+ * Production ToS NOT until licensed attorney.
+ * Paul LOCK: clickwrap required (FAIL browsewrap). Get AG CTA pixels HOLD.
  * Look pixels HOLD — no #39 redesign.
  */
 export default function TermsPage() {
+  // Outline §2: unchecked-by-default; never pre-check.
   const [accepted, setAccepted] = useState(false);
 
   return (
@@ -58,46 +65,60 @@ export default function TermsPage() {
         <Banner
           status="warning"
           title="DRAFT — lawyer review required before ship"
-          description="Never ship ToS without counsel. This page is a stub/outline only (Get AG ToS outline tip in flight elsewhere). Not legal advice."
+          description="Production ToS NOT until a licensed attorney drafts operative language. This page is a stub citing the AG outline SoT only — not legal advice, not enforceable counsel work."
         />
 
         <VStack gap={2}>
           <Text type="supporting" color="secondary">
-            DRAFT · stub / outline · not counsel-approved
+            DRAFT stub · cites AG #57 @ 9b5bcd9 · not counsel-approved
           </Text>
           <Heading level={1} type="display-3" textWrap="balance">
             Terms before Get AG
           </Heading>
           <Text type="body" color="secondary" textWrap="balance">
-            Get Agentic Governance requires clickwrap acceptance on this path
-            before download. The download target is always the product repo —
-            never this marketing site.
+            Get AG requires clickwrap acceptance before download (FAIL
+            browsewrap). Download targets the product repo only — never this
+            marketing site.
           </Text>
         </VStack>
 
         <Banner
           status="info"
-          title="Lawyer review banner (required)"
-          description="Liability language, anonymous-improve consent basics, and final ToS wording need counsel review before public launch. Do not treat this stub as shipped terms."
+          title="Outline SoT (AG #57 MERGED LIVE @ 9b5bcd9)"
+          description="Product intent lives in docs/legal/get-ag-terms-outline.md on agentic-governance. Site stub must cite that outline — never invent production ToS here."
         />
 
         <Card padding={6} elevation="med">
           <VStack gap={4} hAlign="start">
             <HStack gap={2} vAlign="center">
               <Icon icon={ScaleIcon} size="md" />
-              <Heading level={2}>Stub terms outline (not legal advice)</Heading>
+              <Heading level={2}>Stub summary (outline intent only)</Heading>
             </HStack>
+            <Text type="supporting" color="secondary">
+              Plain-English placeholders from the AG outline — counsel replaces
+              these before ship. Governing law intent: Delaware (Paul LOCK).
+            </Text>
             <List>
-              <ListItem label="AG is provided as-is; no warranty of fitness for a particular purpose." />
-              <ListItem label="You are responsible for how you run agents, tools, and automation against your systems." />
-              <ListItem label="Do not submit secrets, PII, or proprietary Studio material into public improve / feedback surfaces." />
-              <ListItem label="Anonymous improve feedback, when enabled, must stay non-identifying and measured-honest." />
-              <ListItem label="Product download / clone lives only at github.com/paulthorson/agentic-governance." />
+              <ListItem label="Acceptance: Get AG / download requires affirmative clickwrap; browsing alone is not acceptance (§1–2)." />
+              <ListItem label="Free AG + anonymous improve basics default on; richer diagnostics opt-in; never secrets/PII/host paths (§3)." />
+              <ListItem label="As-is / no warranty; operator assumes use risk — liability language by counsel (§4)." />
+              <ListItem label="AG IP stays with AG; code license on the product repo remains authoritative once counsel aligns (§5)." />
+              <ListItem label="Governing law intent: Delaware — do not invent venue/city beyond that without Paul + counsel (§7)." />
+              <ListItem label="Download / clone only at github.com/paulthorson/agentic-governance — never this site repo." />
             </List>
 
+            <HStack gap={3} wrap="wrap">
+              <Button
+                label="Open DRAFT outline SoT on AG"
+                variant="secondary"
+                href={OUTLINE_SOT_URL}
+              />
+              <Button label="AG PR #57" variant="ghost" href={OUTLINE_PR_URL} />
+            </HStack>
+
             <CheckboxInput
-              label="I have read this DRAFT stub and agree to continue to Get AG"
-              description="Paul LOCK: clickwrap required before download. Final terms replace this stub after lawyer review."
+              label="I have read this DRAFT stub (citing AG outline #57 @ 9b5bcd9) and agree to continue to Get AG"
+              description="Paul LOCK: clickwrap required before download. Unchecked by default. Production ToS NOT until licensed attorney."
               value={accepted}
               isRequired
               onChange={(checked) => setAccepted(checked)}
@@ -122,7 +143,7 @@ export default function TermsPage() {
             </HStack>
             {!accepted ? (
               <Text type="supporting" color="secondary">
-                Accept the clickwrap checkbox before download.
+                Accept the clickwrap checkbox before download (browsewrap FAIL).
               </Text>
             ) : null}
           </VStack>

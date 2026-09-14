@@ -204,9 +204,9 @@ export function HomeView({
               />
             </HStack>
             <Text type="supporting" color="secondary">
-              Get AG uses clickwrap on /terms (DRAFT — lawyer review required
-              before ship). Look pixels HOLD (#39) — current face, not a
-              redesign.
+              Get AG CTA pixels HOLD until clickwrap path. Route → /terms
+              (DRAFT stub cites AG #57 @ 9b5bcd9). Production ToS NOT until
+              licensed attorney. Look HOLD #39.
             </Text>
           </VStack>
         </Card>

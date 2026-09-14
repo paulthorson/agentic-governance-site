@@ -16,12 +16,14 @@ Marketing + living board + admin twin for **Agentic Governance**.
 
 ## Get AG + Terms (Paul LOCK)
 
-1. Public **Get AG** CTAs route to [`/terms`](./src/app/terms/page.tsx) first.
-2. `/terms` is a **DRAFT stub / outline** only — banner: **DRAFT — lawyer review required before ship**.
-3. **Clickwrap required** before the download CTA enables (Paul LOCK).
-4. **Never ship ToS without counsel** — replace stub after lawyer review; not legal advice.
-5. After clickwrap accept, download always targets `https://github.com/paulthorson/agentic-governance` — never this site repo.
-6. Look pixels HOLD (#39) — no redesign on this path.
+1. Public **Get AG** CTAs route to [`/terms`](./src/app/terms/page.tsx) first (**FAIL browsewrap**).
+2. `/terms` is a **DRAFT stub** citing AG outline SoT — [#57](https://github.com/paulthorson/agentic-governance/pull/57) **MERGED LIVE** @ `9b5bcd9` → [`docs/legal/get-ag-terms-outline.md`](https://github.com/paulthorson/agentic-governance/blob/9b5bcd9/docs/legal/get-ag-terms-outline.md).
+3. Banner: **DRAFT — lawyer review required before ship**.
+4. **Clickwrap required** (unchecked by default) before the download CTA enables.
+5. **Production ToS NOT until licensed attorney** — never treat stub/outline as enforceable counsel work.
+6. After clickwrap accept, download → `https://github.com/paulthorson/agentic-governance` only.
+7. **Get AG CTA pixels HOLD** until clickwrap path is clear; look HOLD #39 — no redesign.
+
 
 ## Feeds (read-only consume)
 
