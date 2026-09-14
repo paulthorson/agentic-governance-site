@@ -28,10 +28,10 @@ import type {TractionMetric} from '@/lib/traction';
 
 const REPO_URL = 'https://github.com/paulthorson/agentic-governance';
 const TERMS_URL = '/terms';
+/** Docs-only (not Get AG download). Still prefer Terms for any install CTA. */
 const CHANGELOG_URL = `${REPO_URL}/blob/main/CHANGELOG.md`;
 const CONTRIBUTE_URL = `${REPO_URL}/blob/main/CONTRIBUTING.md`;
 const IMPROVE_DOCS_URL = `${REPO_URL}/tree/main/docs/improve`;
-const README_URL = `${REPO_URL}#quick-start-any-system`;
 
 interface KpiRow extends Record<string, unknown> {
   name: string;
@@ -179,9 +179,10 @@ export function HomeView({
               Get Agentic Governance
             </Heading>
             <Text type="body" color="secondary" textWrap="balance">
-              Clone the framework, run the MCP server, and adopt with the setup
-              wizard. Download always targets the product repo on GitHub — never
-              this marketing site. Get AG passes through Terms first.
+              Clone the framework after Terms clickwrap. Download always targets
+              the product repo on GitHub — never this marketing site. Secondary
+              install deep-links (repo root, Quick start, Releases) stay gated
+              through /terms.
             </Text>
             <HStack gap={3} wrap="wrap">
               <Button
@@ -197,16 +198,17 @@ export function HomeView({
                 }
               />
               <Button
-                label="Quick start"
+                label="Quick start (via Terms)"
                 variant="secondary"
                 size="lg"
-                href={README_URL}
+                href={TERMS_URL}
               />
             </HStack>
             <Text type="supporting" color="secondary">
-              Get AG CTA pixels HOLD. /terms clickwrap = own free will · as-is ·
-              Paul not liable (Apache 2.0 · no default telemetry). DRAFT —
-              lawyer review required. Look HOLD #39.
+              Get AG CTA pixels HOLD. Clickwrap on /terms (AG #60 @ 86e98081:
+              Apache 2.0 · free will · as-is · party blank until counsel).
+              Ungated today: github.com/paulthorson/agentic-governance/releases
+              — site does not deep-link it. Look HOLD #39.
             </Text>
           </VStack>
         </Card>
@@ -263,7 +265,11 @@ export function HomeView({
                   variant="primary"
                   href={CHANGELOG_URL}
                 />
-                <Button label="Open the repo" variant="secondary" href={REPO_URL} />
+                <Button
+                  label="Get AG (via Terms)"
+                  variant="secondary"
+                  href={TERMS_URL}
+                />
               </HStack>
             </VStack>
           </Card>

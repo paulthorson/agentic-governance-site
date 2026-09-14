@@ -17,14 +17,15 @@ Marketing + living board + admin twin for **Agentic Governance**.
 ## Get AG + Terms (Cos SUPERSEDE — Apache 2.0)
 
 1. Get AG → [`/terms`](./src/app/terms/page.tsx) first (**FAIL browsewrap**).
-2. **Clickwrap:** own free will · **as-is** · **Paul not liable** — **not** anonymous-improve / telemetry trade.
-3. **Apache 2.0** (not MIT) · **no default telemetry** · opt-in only OK · any telemetry UI **defaults OFF**.
-4. Pointers: Apache 2.0 on AG (Cos tip `bc-21eb1895` owns AG LICENSE — site does not race) + Delaware.
-5. DRAFT stub cites AG [#57](https://github.com/paulthorson/agentic-governance/pull/57) @ `9b5bcd9` until AG superseding tip lands.
-6. Banner: **DRAFT — lawyer review required before ship**. Production ToS NOT until counsel.
-7. Download → `https://github.com/paulthorson/agentic-governance` only.
-8. Look HOLD #39; Get AG CTA pixels HOLD beyond clickwrap stub.
-9. This gate PR stays **draft** until Cos undrafts.
+2. **Clickwrap:** own free will · **as-is** · risk accepted — **not** anonymous-improve / telemetry trade.
+3. **Contracting party blank until lawyer** — no invented LLC / personal party name.
+4. **Apache 2.0** SoT: AG [#60](https://github.com/paulthorson/agentic-governance/pull/60) @ `86e98081` (not #57-only cites).
+5. **No default telemetry** · opt-in only OK · telemetry UI **defaults OFF**.
+6. Delaware governing-law intent.
+7. Banner: **DRAFT — lawyer review required before ship**.
+8. **Re-gated:** Quick start / repo open CTAs → `/terms`. Docs-only links stay docs.
+9. **Named ungated:** `https://github.com/paulthorson/agentic-governance/releases` — site does not deep-link.
+10. Look HOLD #39; this PR stays **draft** (HOLD merge: Adv stamp + Paul entity call + Cos craft).
 
 
 ## Feeds (read-only consume)

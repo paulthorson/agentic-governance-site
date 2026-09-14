@@ -1,29 +1,32 @@
 # Terms gate (Get AG) — DRAFT stub
 
-**Cos SUPERSEDE:** LICENSE = **Apache 2.0** (not MIT).  
-AG LICENSE + Terms DRAFT owned by Cos tip `bc-21eb1895` — **do not race AG repo**; site points only.
+**HOLD merge** until Adv stamp + Paul entity call + Cos craft.
 
 | Lock | Detail |
 |---|---|
-| License | **Apache 2.0** pointer (AG `LICENSE` + Apache 2.0 text) — not MIT |
-| Clickwrap | Install of **own free will** · **as-is** · **Paul not liable** |
-| Telemetry | **No default telemetry**; opt-in only OK; any telemetry UI **defaults OFF** |
-| Not clickwrap | Anonymous-improve trade / telemetry-as-price-of-download |
+| License SoT | **Apache 2.0** — AG [#60](https://github.com/paulthorson/agentic-governance/pull/60) **LIVE** @ `86e98081` (not older #57-only Apache cites) |
+| Outline / DRAFT | [`docs/legal/get-ag-terms-outline.md`](https://github.com/paulthorson/agentic-governance/blob/86e98081/docs/legal/get-ag-terms-outline.md) · [`get-ag-terms-DRAFT.md`](https://github.com/paulthorson/agentic-governance/blob/86e98081/docs/legal/get-ag-terms-DRAFT.md) |
+| Clickwrap | Own free will · as-is · risk accepted |
+| Contracting party | **Blank until lawyer** — no invented LLC / personal party name |
+| Telemetry | **No default telemetry**; opt-in only OK; UI default OFF |
 | Governing law intent | **Delaware** |
 | Ship | Production ToS **NOT** until licensed attorney — keep PR **draft** + lawyer banner |
-| Look | HOLD #39 — no Get AG CTA pixel polish beyond clickwrap stub |
+| Look | HOLD #39 |
 
-| Route rule | Detail |
-|---|---|
-| Route | `/terms` |
-| Download after accept | `https://github.com/paulthorson/agentic-governance` |
-| Never | Site repo as product download |
+## Adv: re-gate secondary deep-links
 
-## Outline SoT
+Site CTAs that would bypass clickwrap are routed to `/terms` first:
 
-- Current: AG [#57](https://github.com/paulthorson/agentic-governance/pull/57) @ `9b5bcd9` → [`docs/legal/get-ag-terms-outline.md`](https://github.com/paulthorson/agentic-governance/blob/9b5bcd9/docs/legal/get-ag-terms-outline.md)
-- AG LICENSE/Terms file ownership: Cos tip `bc-21eb1895` (do not race)
+- Get AG / Quick start → `/terms` (not raw repo / README deep-link)
+- Changelog “Open the repo” removed → “Get AG (via Terms)”
+- Docs-only links (CHANGELOG, CONTRIBUTING, docs/improve) remain docs reads — not install unlocks
+
+## Adv: named ungated Releases
+
+**Ungated today (named):** `https://github.com/paulthorson/agentic-governance/releases`  
+(and release assets / source zips on that page) can bypass site clickwrap.  
+Site must **not** deep-link Releases until gated. Gated path after accept: repo root `https://github.com/paulthorson/agentic-governance`.
 
 ## DRAFT — lawyer review required before ship
 
-Banner required. Counsel unpaid → stay draft until Cos undrafts.
+Banner required. Counsel unpaid → stay draft. Contracting party blank until counsel.
