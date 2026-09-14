@@ -511,11 +511,13 @@ export function ProcessInstrumentGraph({
       }
 
       // Dense spoke cloud (Line segments — force-graph lattice).
+      const spokeSegs: Array<{a: THREE.Vector3; b: THREE.Vector3}> = [];
       const spokePositions: number[] = [];
       for (const [a, b] of CONTEXT_EDGES) {
         const pa = nodeMap.get(a);
         const pb = nodeMap.get(b);
         if (!pa || !pb) continue;
+        spokeSegs.push({a: pa, b: pb});
         spokePositions.push(pa.x, pa.y, pa.z, pb.x, pb.y, pb.z);
       }
       const spokeGeo = trackGeo(new THREE.BufferGeometry());
@@ -527,11 +529,76 @@ export function ProcessInstrumentGraph({
         new THREE.LineBasicMaterial({
           color: SAGE_DIM,
           transparent: true,
-          opacity: 0.32,
+          opacity: 0.26,
         }),
       );
-      const spokes = new THREE.LineSegments(spokeGeo, spokeMat);
-      root.add(spokes);
+      root.add(new THREE.LineSegments(spokeGeo, spokeMat));
+
+      /**
+       * Faint white wash pulses traveling ALONG strokes (inside the line) —
+       * DESIGN_AGENCY_BAR: luminance in-path only, no bead objects / glow-as-craft.
+       */
+      type StrokePulse = {
+        mesh: THREE.Mesh;
+        mat: THREE.MeshBasicMaterial;
+        phase: number;
+        speed: number;
+        kind: 'spoke' | 'loop';
+        segIndex: number;
+      };
+      const pulseGeo = trackGeo(
+        new THREE.CylinderGeometry(1, 1, 1, 6, 1, true),
+      );
+      // Default Y-up cylinder — placePulse scales Y as travel length along the stroke.
+      pulseGeo.rotateX(Math.PI / 2);
+      const strokePulses: StrokePulse[] = [];
+      const pulseCount = Math.min(spokeSegs.length, 18);
+      for (let i = 0; i < pulseCount; i += 1) {
+        const mat = trackMat(
+          new THREE.MeshBasicMaterial({
+            color: WASH,
+            transparent: true,
+            opacity: 0,
+            depthWrite: false,
+          }),
+        );
+        const mesh = new THREE.Mesh(pulseGeo, mat);
+        root.add(mesh);
+        strokePulses.push({
+          mesh,
+          mat,
+          phase: (i * 0.137) % 1,
+          speed: 0.11 + (i % 5) * 0.015,
+          kind: 'spoke',
+          segIndex: i % spokeSegs.length,
+        });
+      }
+      // A few pulses on the active loop path (wash traveling inside the stroke).
+      for (let i = 0; i < 4; i += 1) {
+        const mat = trackMat(
+          new THREE.MeshBasicMaterial({
+            color: WASH,
+            transparent: true,
+            opacity: 0,
+            depthWrite: false,
+          }),
+        );
+        const mesh = new THREE.Mesh(pulseGeo, mat);
+        root.add(mesh);
+        strokePulses.push({
+          mesh,
+          mat,
+          phase: i * 0.25,
+          speed: 0.08 + i * 0.01,
+          kind: 'loop',
+          segIndex: i,
+        });
+      }
+      const pulseFrom = new THREE.Vector3();
+      const pulseTo = new THREE.Vector3();
+      const pulseMid = new THREE.Vector3();
+      const pulseDir = new THREE.Vector3();
+      const yAxis = new THREE.Vector3(0, 1, 0);
 
       // Active process path: ONE closed tube + white wash INSIDE (no open-end beads).
       const loopPts: THREE.Vector3[] = [];
@@ -557,19 +624,19 @@ export function ProcessInstrumentGraph({
         new THREE.MeshLambertMaterial({
           color: WASH,
           transparent: true,
-          opacity: 0.58,
+          opacity: 0.52,
           depthWrite: false,
         }),
       );
       root.add(
         new THREE.Mesh(
-          trackGeo(new THREE.TubeGeometry(closedLoop, 180, 0.042, 14, true)),
+          trackGeo(new THREE.TubeGeometry(closedLoop, 180, 0.04, 14, true)),
           strokeMat,
         ),
       );
       root.add(
         new THREE.Mesh(
-          trackGeo(new THREE.TubeGeometry(closedLoop, 180, 0.018, 10, true)),
+          trackGeo(new THREE.TubeGeometry(closedLoop, 180, 0.016, 10, true)),
           washMat,
         ),
       );
@@ -598,7 +665,7 @@ export function ProcessInstrumentGraph({
               new THREE.TubeGeometry(
                 new THREE.CatmullRomCurve3([p0, p1, p2]),
                 18,
-                0.022,
+                0.02,
                 8,
                 false,
               ),
@@ -614,6 +681,38 @@ export function ProcessInstrumentGraph({
       const worldPos = new THREE.Vector3();
       const refDist = portrait ? 6.4 : 5.2;
       window.addEventListener('resize', onResize);
+
+      const placePulse = (
+        pulse: StrokePulse,
+        from: THREE.Vector3,
+        to: THREE.Vector3,
+        u: number,
+        radius: number,
+        peakOpacity: number,
+      ) => {
+        const half = 0.08;
+        const u0 = Math.max(0, u - half);
+        const u1 = Math.min(1, u + half);
+        pulseFrom.lerpVectors(from, to, u0);
+        pulseTo.lerpVectors(from, to, u1);
+        pulseMid.lerpVectors(pulseFrom, pulseTo, 0.5);
+        pulseDir.subVectors(pulseTo, pulseFrom);
+        const len = Math.max(pulseDir.length(), 0.001);
+        pulseDir.normalize();
+        pulse.mesh.position.copy(pulseMid);
+        if (Math.abs(pulseDir.y) > 0.999) {
+          pulse.mesh.quaternion.identity();
+          if (pulseDir.y < 0) {
+            pulse.mesh.rotateX(Math.PI);
+          }
+        } else {
+          pulse.mesh.quaternion.setFromUnitVectors(yAxis, pulseDir);
+        }
+        // Y = length along stroke; X/Z = thin wash radius (not a bead).
+        pulse.mesh.scale.set(radius, len, radius);
+        const travel = Math.sin(u * Math.PI);
+        pulse.mat.opacity = peakOpacity * (0.35 + 0.65 * travel);
+      };
 
       const animate = () => {
         if (!alive || !renderer) return;
@@ -650,6 +749,40 @@ export function ProcessInstrumentGraph({
             const dist = Math.max(camera.position.distanceTo(worldPos), 0.8);
             const persp = THREE.MathUtils.clamp(refDist / dist, 0.45, 1.85);
             dn.mesh.scale.setScalar(dn.baseRadius * persp);
+          }
+
+          // Faint white wash pulses traveling along spokes + loop (inside strokes).
+          for (const pulse of strokePulses) {
+            const u = (t * pulse.speed + pulse.phase) % 1;
+            if (pulse.kind === 'spoke') {
+              const seg = spokeSegs[pulse.segIndex];
+              if (!seg) {
+                pulse.mat.opacity = 0;
+                continue;
+              }
+              placePulse(
+                pulse,
+                seg.a,
+                seg.b,
+                u,
+                hover ? 0.007 : 0.0055,
+                hover ? 0.22 : 0.32,
+              );
+            } else {
+              closedLoop.getPointAt(u, pulseMid);
+              closedLoop.getTangentAt(u, pulseDir).normalize();
+              pulse.mesh.position.copy(pulseMid);
+              if (Math.abs(pulseDir.y) > 0.999) {
+                pulse.mesh.quaternion.identity();
+                if (pulseDir.y < 0) pulse.mesh.rotateX(Math.PI);
+              } else {
+                pulse.mesh.quaternion.setFromUnitVectors(yAxis, pulseDir);
+              }
+              // Short dash along path — wash traveling inside the stroke.
+              pulse.mesh.scale.set(0.011, 0.2, 0.011);
+              pulse.mat.opacity =
+                (hover ? 0.26 : 0.4) * (0.55 + 0.45 * Math.sin(u * Math.PI * 2));
+            }
           }
 
           if (hover && chapter) {
