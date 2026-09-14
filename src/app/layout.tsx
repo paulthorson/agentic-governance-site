@@ -13,8 +13,7 @@ const ebGaramond = EB_Garamond({
 
 export const metadata: Metadata = {
   title: 'Agentic Governance',
-  description:
-    'The loop that keeps AI teams honest — visible, governed, ship only what clears.',
+  description: 'See the loop. Govern the work. Ship only what clears.',
 };
 
 export default function RootLayout({

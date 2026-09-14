@@ -1,7 +1,7 @@
 /**
  * Process Instrument chapters — land copy sells how the loop works.
  * Drill-downs are past-tense micro-stories (not scoreboards).
- * SoT: AG #39 MERGED LIVE @ 3e8de677 (craft CLEAR @ 4d4e4d7).
+ * SoT craft: AG #39 @ f57061e (+ craft CLEAR tip 4d4e4d7). #26 HOLD.
  */
 
 export type ProcessChapterId =
@@ -83,6 +83,9 @@ export const PROCESS_CHAPTERS: ProcessChapter[] = [
 /** Measured ship toast — count must stay measured (never invent). */
 export function shipToastBody(measuredShipsThisWeek: number): string {
   const n = measuredShipsThisWeek;
+  if (n <= 0) {
+    return 'An update made it onto the board.';
+  }
   const countWord =
     n === 1 ? 'one' : n === 2 ? 'two' : n === 3 ? 'three' : String(n);
   return `An update made it onto the board. That's ${countWord} this week.`;

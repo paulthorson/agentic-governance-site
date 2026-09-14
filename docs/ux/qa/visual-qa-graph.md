@@ -1,6 +1,8 @@
 # Check 8 — Process Instrument in the Void (site)
 
-**AG `#39` MERGED LIVE @ `3e8de677`** (craft CLEAR tip `4d4e4d7`). Paul-approved Class B look stills. Site Eng ships this craft. **#26 HOLD** — no new redesign.
+**QA verify:** AG `#39` @ **`f57061e`** (+ craft CLEAR tip `4d4e4d7`). Paul-approved Class B look stills. **#26 HOLD** — no Apple retip / no separate redesign.
+
+**#62 @ `445e0f02`:** no agent legal/clickwrap; `/terms` pending. Cos-owned copy only.
 
 **Name:** Process Instrument in the Void.  
 **Type:** Advercase display + Geist body. Mock stand-in: EB Garamond + Geist Sans.  
@@ -24,4 +26,4 @@
 
 ## FAIL closed
 
-Beads / marble / confetti / glow-as-craft · flat SVG kit · diary land · scoreboard drill-downs · static diagram instead of living 3D instrument · Get AG on admin twin · clickwrap
+Beads / marble / confetti / glow-as-craft · flat SVG kit · diary land · scoreboard drill-downs · static diagram instead of living 3D instrument · Get AG on admin twin · clickwrap · #26 Apple retip

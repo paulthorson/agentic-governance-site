@@ -1,10 +1,12 @@
 # AG public website — design system (site mirror)
 
-**SoT:** AG `#39` MERGED LIVE @ **`3e8de677`** (craft CLEAR @ `4d4e4d7`). Full packet lives in AG `dashboard/docs/ux/design-system.md` — this file mirrors Eng locks for the marketing site.
+**SoT craft:** AG `#39` @ **`f57061e`** (+ craft CLEAR tip `4d4e4d7`). Full packet in AG `dashboard/docs/ux/design-system.md`.
 
-**Status:** Cos GO SIGNOFF 2026-09-14 DS LOCKED. Look APPROVED — Eng may ship approved stills. **#26 HOLD.** New stills still Cos→Paul.
+**Status:** Cos GO SIGNOFF 2026-09-14 DS LOCKED. Look APPROVED — Eng ships **#39 Process Instrument** only. **#26 HOLD** (no Apple retip). New stills still Cos→Paul.
 
-## Promise
+**#62 MERGED @ `445e0f02`:** public copy honesty LIVE. No agent legal/clickwrap. `/terms` pending. Cos owns site copy — no invented marketing beyond approved stills/DS.
+
+## Promise (DS)
 
 Visible loop. Ship only what clears. Not a sandbox, certification, or guarantee agents obey.
 
@@ -25,7 +27,7 @@ Visible loop. Ship only what clears. Not a sandbox, certification, or guarantee 
 | `--ag-sage` | `#8a9a8e` | Hue family |
 | `--ag-wash` | `rgba(255,255,255,.5)` | Inside active stroke |
 
-## Chapters (land)
+## Chapters (land — approved stills copy)
 
 01 Research — Find what matters before a brief exists.  
 02 Brief — Turn findings into a job the loop can hold.  
@@ -43,4 +45,4 @@ Visible loop. Ship only what clears. Not a sandbox, certification, or guarantee 
 
 ## FAIL closed
 
-Beads / marble / confetti / glow-as-craft · flat SVG kit · diary land · scoreboard drill-downs · geometric sans as Advercase · clickwrap · invented KPIs · enforcement-as-marketing
+Beads / marble / confetti / glow-as-craft · flat SVG kit · diary land · scoreboard drill-downs · geometric sans as Advercase · clickwrap · invented KPIs · enforcement-as-marketing · #26 Apple retip
