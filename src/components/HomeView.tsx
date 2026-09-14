@@ -204,9 +204,9 @@ export function HomeView({
               />
             </HStack>
             <Text type="supporting" color="secondary">
-              Get AG CTA pixels HOLD. /terms clickwrap = own free will · accept
-              risk · as-is (Paul LOCK: Apache 2.0 · no default telemetry).
-              DRAFT — lawyer review required. Look HOLD #39.
+              Get AG CTA pixels HOLD. /terms clickwrap = own free will · as-is ·
+              Paul not liable (Apache 2.0 · no default telemetry). DRAFT —
+              lawyer review required. Look HOLD #39.
             </Text>
           </VStack>
         </Card>

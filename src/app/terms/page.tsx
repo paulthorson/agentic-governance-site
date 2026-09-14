@@ -30,9 +30,10 @@ const OUTLINE_PR_URL =
   'https://github.com/paulthorson/agentic-governance/pull/57';
 
 /**
- * Get AG clickwrap — Paul LOCK UPDATE:
- * Apache 2.0 · install of own free will / accept risk / as-is ·
- * no default telemetry · opt-in OK · no anon-improve trade · Delaware ·
+ * Get AG clickwrap — Cos SUPERSEDE / Paul LOCK:
+ * Apache 2.0 (not MIT) · own free will / as-is / Paul not liable ·
+ * no default telemetry · opt-in OK · Delaware ·
+ * AG LICENSE+Terms DRAFT owned by Cos tip bc-21eb1895 — do not race AG repo.
  * Production ToS NOT until counsel. Stay DRAFT. Look HOLD — no #39.
  */
 export default function TermsPage() {
@@ -77,17 +78,17 @@ export default function TermsPage() {
             Terms before Get AG
           </Heading>
           <Text type="body" color="secondary" textWrap="balance">
-            Install of your own free will. You accept the risk. Software is
-            provided as-is. Download targets Apache 2.0–licensed AG — never this
-            marketing site. No telemetry or anonymous-improve trade as the
-            price of download.
+            Install of your own free will. Software is as-is. Paul is not
+            liable. Download targets Apache 2.0–licensed AG — never this
+            marketing site. No default telemetry; no anonymous-improve trade as
+            the price of download.
           </Text>
         </VStack>
 
         <Banner
           status="info"
-          title="Paul LOCK — Apache 2.0 + install clickwrap"
-          description="License pointer is Apache 2.0 (supersedes prior MIT). Clickwrap: own free will · accept risk · as-is. No default telemetry (opt-in OK; UI default OFF). No anonymous-improve trade. Delaware governing-law intent. Outline SoT AG #57 @ 9b5bcd9 until superseding amend (bc-e4300373) lands."
+          title="Cos SUPERSEDE — Apache 2.0 + install clickwrap"
+          description="LICENSE = Apache 2.0 (not MIT). Clickwrap: own free will · as-is · Paul not liable. No default telemetry (opt-in OK; UI default OFF). Delaware. AG LICENSE/Terms DRAFT owned by Cos tip bc-21eb1895 — site points only, does not race AG. Outline SoT AG #57 @ 9b5bcd9 until superseding amend lands."
         />
 
         <Card padding={6} elevation="med">
@@ -97,16 +98,17 @@ export default function TermsPage() {
               <Heading level={2}>Install clickwrap (stub)</Heading>
             </HStack>
             <Text type="supporting" color="secondary">
-              Intent placeholders only — counsel replaces before ship.
+              Intent placeholders only — counsel replaces before ship. AG
+              LICENSE file is owned on AG by Cos tip bc-21eb1895.
             </Text>
             <List>
               <ListItem label="I install Agentic Governance of my own free will." />
-              <ListItem label="I accept the risk of use." />
               <ListItem label="Software and docs are provided as-is, without warranty." />
-              <ListItem label="Product license pointer: Apache License 2.0 (see LICENSE on AG)." />
+              <ListItem label="Paul is not liable — operator assumes responsibility for use (counsel drafts operative language)." />
+              <ListItem label="Product license pointer: Apache License 2.0 (not MIT) — see LICENSE on AG." />
               <ListItem label="No default telemetry. Opt-in only OK; if any telemetry UI exists, it defaults OFF." />
               <ListItem label="No anonymous-improve trade and no telemetry-as-price-of-download." />
-              <ListItem label="Governing law intent: Delaware (Paul LOCK) — no invented venue/city without Paul + counsel." />
+              <ListItem label="Governing law intent: Delaware — no invented venue/city without Paul + counsel." />
               <ListItem label="Download / clone only at github.com/paulthorson/agentic-governance." />
             </List>
 
@@ -126,8 +128,8 @@ export default function TermsPage() {
             </HStack>
 
             <CheckboxInput
-              label="I install of my own free will, accept the risk, and agree these DRAFT as-is Terms to continue to Get AG"
-              description="Paul LOCK: Apache 2.0 · own free will · accept risk · as-is. No default telemetry. Not an anonymous-improve or telemetry trade. Unchecked by default. Production ToS NOT until licensed attorney."
+              label="I install of my own free will, agree these DRAFT as-is Terms, and understand Paul is not liable"
+              description="Cos SUPERSEDE: Apache 2.0 (not MIT) · own free will · as-is · Paul not liable. No default telemetry. Unchecked by default. Production ToS NOT until licensed attorney."
               value={accepted}
               isRequired
               onChange={(checked) => setAccepted(checked)}
@@ -152,8 +154,8 @@ export default function TermsPage() {
             </HStack>
             {!accepted ? (
               <Text type="supporting" color="secondary">
-                Accept install clickwrap (free will · risk · as-is) before
-                download.
+                Accept install clickwrap (free will · as-is · Paul not liable)
+                before download.
               </Text>
             ) : null}
           </VStack>
