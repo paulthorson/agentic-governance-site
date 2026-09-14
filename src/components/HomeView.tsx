@@ -27,8 +27,10 @@ import type {AggregatedKpi, ChartPoint} from '@/lib/kpis';
 import type {TractionMetric} from '@/lib/traction';
 
 const REPO_URL = 'https://github.com/paulthorson/agentic-governance';
+/** Plain pending notice only — no acceptance gate. */
 const TERMS_URL = '/terms';
-/** Docs-only (not Get AG download). Still prefer Terms for any install CTA. */
+/** Get AG: direct product repo — no clickwrap / accept required. */
+const GET_AG_URL = REPO_URL;
 const CHANGELOG_URL = `${REPO_URL}/blob/main/CHANGELOG.md`;
 const CONTRIBUTE_URL = `${REPO_URL}/blob/main/CONTRIBUTING.md`;
 const IMPROVE_DOCS_URL = `${REPO_URL}/tree/main/docs/improve`;
@@ -137,7 +139,7 @@ export function HomeView({
           startContent={
             <>
               <TopNavItem label="KPIs" href="#kpis" isSelected />
-              <TopNavItem label="Get AG" href={TERMS_URL} />
+              <TopNavItem label="Get AG" href={GET_AG_URL} />
               <TopNavItem label="Changelog" href="#changelog" />
               <TopNavItem label="Contribute" href="#contribute" />
             </>
@@ -147,7 +149,7 @@ export function HomeView({
               label="Get Agentic Governance"
               variant="primary"
               size="sm"
-              href={TERMS_URL}
+              href={GET_AG_URL}
               icon={<Icon icon={ArrowDownTrayIcon} size="sm" color="inherit" />}
             />
           }
@@ -179,17 +181,15 @@ export function HomeView({
               Get Agentic Governance
             </Heading>
             <Text type="body" color="secondary" textWrap="balance">
-              Clone the framework after Terms clickwrap. Download always targets
-              the product repo on GitHub — never this marketing site. Secondary
-              install deep-links (repo root, Quick start, Releases) stay gated
-              through /terms.
+              Clone the framework from the product repo on GitHub — never this
+              marketing site. No site acceptance gate.
             </Text>
             <HStack gap={3} wrap="wrap">
               <Button
-                label="Get AG (via Terms)"
+                label="Get AG on GitHub"
                 variant="primary"
                 size="lg"
-                href={TERMS_URL}
+                href={GET_AG_URL}
                 icon={
                   <Icon icon={ArrowDownTrayIcon} size="sm" color="inherit" />
                 }
@@ -198,17 +198,15 @@ export function HomeView({
                 }
               />
               <Button
-                label="Quick start (via Terms)"
+                label="Quick start on GitHub"
                 variant="secondary"
                 size="lg"
-                href={TERMS_URL}
+                href={GET_AG_URL}
               />
             </HStack>
             <Text type="supporting" color="secondary">
-              Get AG CTA pixels HOLD. Clickwrap on /terms (AG #60 @ 86e98081:
-              Apache 2.0 · free will · as-is · party blank until counsel).
-              Ungated today: github.com/paulthorson/agentic-governance/releases
-              — site does not deep-link it. Look HOLD #39.
+              Download targets github.com/paulthorson/agentic-governance. Site
+              clickwrap is off. Look HOLD #39.
             </Text>
           </VStack>
         </Card>
@@ -266,9 +264,9 @@ export function HomeView({
                   href={CHANGELOG_URL}
                 />
                 <Button
-                  label="Get AG (via Terms)"
+                  label="Get AG on GitHub"
                   variant="secondary"
-                  href={TERMS_URL}
+                  href={GET_AG_URL}
                 />
               </HStack>
             </VStack>
@@ -309,6 +307,12 @@ export function HomeView({
           Feeds pull read-only from AG (docs/improve + data/traction.json).{' '}
           {gatedCount} traction metrics hidden at current thresholds.
         </Text>
+
+        <Button
+          label="Terms of use: pending."
+          variant="ghost"
+          href={TERMS_URL}
+        />
       </VStack>
     </AppShell>
   );
