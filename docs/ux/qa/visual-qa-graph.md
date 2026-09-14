@@ -1,6 +1,6 @@
 # Check 8 — Process Instrument in the Void (site)
 
-**QA verify:** AG `#39` @ **`f57061e`** (+ craft CLEAR tip `4d4e4d7`). Paul-approved Class B look stills. **#26 HOLD** — no Apple retip / no separate redesign.
+**SoT:** AG `#39` **MERGED LIVE @ `3e8de677`**. **QA verify** also vs `#39` @ **`f57061e`** (+ craft CLEAR tip `4d4e4d7`). Paul-approved Class B look stills. **#26 HOLD** — no Apple retip / no separate redesign.
 
 **UX Canvas SoT:** `docs/initiatives/ag-website-ux-canvas.md` @ **`6b24c4bc`** (**#50**). Admin twin = same craft; one product, two doors.
 
