@@ -1,33 +1,20 @@
-import {HomeView} from '@/components/HomeView';
+import {ProcessInstrumentView} from '@/components/process-instrument/ProcessInstrumentView';
 import {loadImproveReports} from '@/lib/improve';
-import {
-  aggregateKpis,
-  buildKpiChartSeries,
-  hasAnyMeasuredChartPoint,
-} from '@/lib/kpis';
-import {
-  hiddenTractionCount,
-  loadTractionConfig,
-  visibleTractionMetrics,
-} from '@/lib/traction';
+import {aggregateKpis} from '@/lib/kpis';
 
 export default async function HomePage() {
   const reports = await loadImproveReports();
   const kpis = aggregateKpis(reports);
-  const series = buildKpiChartSeries(reports);
-  const hasMeasured = hasAnyMeasuredChartPoint(series);
-  const traction = await loadTractionConfig();
-  const visibleTraction = visibleTractionMetrics(traction);
-  const gatedCount = hiddenTractionCount(traction);
+  const agPrs = kpis.find((k) => k.kind === 'agPrs');
+  const measuredShipsThisWeek =
+    agPrs?.status === 'measured' && agPrs.numericValue != null
+      ? agPrs.numericValue
+      : 0;
 
   return (
-    <HomeView
-      reports={reports}
-      kpis={kpis}
-      series={series}
-      hasMeasured={hasMeasured}
-      visibleTraction={visibleTraction}
-      gatedCount={gatedCount}
+    <ProcessInstrumentView
+      showGetAg
+      measuredShipsThisWeek={measuredShipsThisWeek}
     />
   );
 }

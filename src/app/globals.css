@@ -1,3 +1,111 @@
 @import '@astryxdesign/core/reset.css';
 @import '@astryxdesign/core/astryx.css';
 @import '@astryxdesign/theme-neutral/theme.css';
+
+/**
+ * Process Instrument in the Void — token sketch from AG design-system.md
+ * MERGED LIVE #39 @ 3e8de677. Do not override Astryx --color-* in :root.
+ */
+:root {
+  --ag-void: #030303;
+  --ag-ink: #f2f1ec;
+  --ag-sage: #8a9a8e;
+  --ag-sage-lift: #a7b4aa;
+  --ag-sage-sink: #5c675f;
+  --ag-wash: rgba(255, 255, 255, 0.5);
+  --ag-panel: rgba(18, 20, 19, 0.92);
+  --ag-panel-border: rgba(138, 154, 142, 0.28);
+  --ag-instrument-min-h: 28rem;
+  --font-family-display: var(--font-ag-display), 'EB Garamond', 'Iowan Old Style',
+    'Palatino Linotype', Palatino, serif;
+  --font-family-body: var(--font-geist-sans), 'Geist', 'Segoe UI', sans-serif;
+}
+
+.ag-root {
+  min-height: 100dvh;
+  background: var(--ag-void);
+  color: var(--ag-ink);
+}
+
+.ag-void-shell {
+  background:
+    radial-gradient(
+      ellipse 80% 55% at 70% 45%,
+      rgba(138, 154, 142, 0.06),
+      transparent 60%
+    ),
+    var(--ag-void);
+}
+
+.ag-brand-mark {
+  display: inline-block;
+  width: var(--spacing-3);
+  height: var(--spacing-3);
+  background: var(--ag-ink);
+  flex-shrink: 0;
+}
+
+.ag-chapter-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding-block: var(--spacing-3);
+  padding-inline: 0;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.ag-chapter-row:hover,
+.ag-chapter-row:focus-visible,
+.ag-chapter-row.is-active {
+  outline: none;
+}
+
+.ag-chapter-row:focus-visible {
+  box-shadow: inset 0 0 0 1px var(--ag-sage-sink);
+}
+
+.ag-chapter-rule {
+  opacity: 0.35;
+}
+
+.ag-get-ag.astryx-button,
+.ag-void-nav .astryx-button[data-variant='primary'] {
+  border-radius: 999px;
+  background: var(--ag-ink) !important;
+  color: var(--ag-void) !important;
+}
+
+.ag-instrument-stage {
+  min-height: var(--ag-instrument-min-h);
+}
+
+.ag-instrument-canvas canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.ag-ship-toast .astryx-toast {
+  background: var(--ag-ink);
+  color: var(--ag-void);
+  border-radius: var(--radius-md);
+}
+
+@media (max-width: 900px) {
+  :root {
+    --ag-instrument-min-h: 22rem;
+  }
+
+  .ag-void-body {
+    flex-direction: column !important;
+  }
+
+  .ag-instrument-stage {
+    min-height: 22rem;
+    width: 100%;
+  }
+}

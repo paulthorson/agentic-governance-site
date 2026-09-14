@@ -1,10 +1,12 @@
 import {auth} from '@/auth';
 import {AdminChrome} from '@/components/AdminChrome';
 import {isAdminEmail} from '@/lib/admin-access';
+import {headers} from 'next/headers';
 
 /**
- * Admin chrome for signed-in allowlisted users.
- * /admin/login renders children only (no chrome) so Google SSO can complete.
+ * Admin chrome for signed-in allowlisted users on ops routes.
+ * Exact `/admin` is the twin Process Instrument face (F7) — no SideNav chrome.
+ * /admin/login renders children only so Google SSO can complete.
  */
 export default async function AdminLayout({
   children,
@@ -15,6 +17,11 @@ export default async function AdminLayout({
   const email = session?.user?.email ?? null;
 
   if (!email || !isAdminEmail(email)) {
+    return <>{children}</>;
+  }
+
+  const headerList = await headers();
+  if (headerList.get('x-ag-admin-twin') === '1') {
     return <>{children}</>;
   }
 
