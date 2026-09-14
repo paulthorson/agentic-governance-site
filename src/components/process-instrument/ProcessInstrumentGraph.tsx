@@ -41,12 +41,13 @@ const LOOP_ORDER: ProcessChapterId[] = [
  */
 const NODES: NodeDef[] = [
   // Loop chapters — labeled, nearer/larger on average
-  {id: 'research', label: 'Research', position: [-1.45, 0.85, 0.85], kind: 'loop', chapter: 'research', radius: 0.048},
-  {id: 'brief', label: 'Brief', position: [0.2, 1.35, -0.55], kind: 'loop', chapter: 'brief', radius: 0.046},
-  {id: 'stills', label: 'Stills', position: [1.65, 0.55, 0.95], kind: 'loop', chapter: 'stills', radius: 0.05},
-  {id: 'challenge', label: 'Challenge', position: [1.35, -0.75, -0.7], kind: 'loop', chapter: 'challenge', radius: 0.045},
-  {id: 'ship', label: 'Ship', position: [-0.15, -1.3, 0.75], kind: 'loop', chapter: 'ship', radius: 0.052},
-  {id: 'recap', label: 'Recap', position: [-1.55, -0.35, -0.8], kind: 'loop', chapter: 'recap', radius: 0.044},
+  // Loop marks stay small — path wash is the alive signal, not joint beads.
+  {id: 'research', label: 'Research', position: [-1.45, 0.85, 0.85], kind: 'loop', chapter: 'research', radius: 0.028},
+  {id: 'brief', label: 'Brief', position: [0.2, 1.35, -0.55], kind: 'loop', chapter: 'brief', radius: 0.026},
+  {id: 'stills', label: 'Stills', position: [1.65, 0.55, 0.95], kind: 'loop', chapter: 'stills', radius: 0.029},
+  {id: 'challenge', label: 'Challenge', position: [1.35, -0.75, -0.7], kind: 'loop', chapter: 'challenge', radius: 0.026},
+  {id: 'ship', label: 'Ship', position: [-0.15, -1.3, 0.75], kind: 'loop', chapter: 'ship', radius: 0.03},
+  {id: 'recap', label: 'Recap', position: [-1.55, -0.35, -0.8], kind: 'loop', chapter: 'recap', radius: 0.025},
   // Context roles — spatial clusters off the loop
   {id: 'next', label: 'Next', position: [-2.4, 0.3, 1.15], kind: 'context', chapter: 'next', radius: 0.032},
   {id: 'design', label: 'Design', position: [2.35, 0.2, -1.2], kind: 'context', radius: 0.034},
@@ -343,8 +344,24 @@ export function ProcessInstrumentGraph({
       scene.fog = new THREE.FogExp2(VOID, 0.032);
 
       // Strong oblique projection — land must read Z, not a flat polygon kit.
-      const camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
-      camera.position.set(3.15, 2.45, 4.55);
+      // Portrait (mobile stack): pull back so the full force-graph fits.
+      const portrait = height >= width * 0.95;
+      const camera = new THREE.PerspectiveCamera(
+        portrait ? 42 : 36,
+        width / height,
+        0.1,
+        100,
+      );
+      const landCam = portrait
+        ? new THREE.Vector3(1.55, 1.35, 6.35)
+        : new THREE.Vector3(3.15, 2.45, 4.55);
+      const hoverCam = portrait
+        ? new THREE.Vector3(1.15, 1.0, 5.2)
+        : new THREE.Vector3(2.2, 1.65, 3.85);
+      const inspectCam = portrait
+        ? new THREE.Vector3(0.85, 0.75, 4.2)
+        : new THREE.Vector3(1.35, 1.05, 3.05);
+      camera.position.copy(landCam);
       camera.lookAt(0.1, 0.05, 0);
       resizeCamera = (w, h) => {
         camera.aspect = w / h;
@@ -578,12 +595,9 @@ export function ProcessInstrumentGraph({
       }
 
       const clock = new THREE.Clock();
-      const landCam = new THREE.Vector3(3.15, 2.45, 4.55);
-      const hoverCam = new THREE.Vector3(2.2, 1.65, 3.85);
-      const inspectCam = new THREE.Vector3(1.35, 1.05, 3.05);
       const camTarget = landCam.clone();
       const worldPos = new THREE.Vector3();
-      const refDist = 5.2;
+      const refDist = portrait ? 6.4 : 5.2;
       window.addEventListener('resize', onResize);
 
       const animate = () => {
