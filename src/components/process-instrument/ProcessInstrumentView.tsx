@@ -9,6 +9,8 @@ import {Toast} from '@astryxdesign/core/Toast';
 import {CheckCircleIcon, XMarkIcon} from '@heroicons/react/20/solid';
 import dynamic from 'next/dynamic';
 import {useCallback, useEffect, useMemo, useState} from 'react';
+import {InstrumentErrorBoundary} from '@/components/process-instrument/InstrumentErrorBoundary';
+import {InstrumentFallback} from '@/components/process-instrument/InstrumentFallback';
 import type {InstrumentMode} from '@/components/process-instrument/ProcessInstrumentGraph';
 import {
   GET_AG_URL,
@@ -26,7 +28,15 @@ const ProcessInstrumentGraph = dynamic(
     import('@/components/process-instrument/ProcessInstrumentGraph').then(
       (m) => m.ProcessInstrumentGraph,
     ),
-  {ssr: false},
+  {
+    ssr: false,
+    loading: () => (
+      <InstrumentFallback
+        className="ag-instrument-canvas"
+        reason="loading"
+      />
+    ),
+  },
 );
 
 export type ProcessInstrumentViewProps = {
@@ -310,12 +320,14 @@ export function ProcessInstrumentView({
             alignSelf: 'stretch',
           }}
         >
-          <ProcessInstrumentGraph
-            mode={mode === 'twitch' ? 'land' : mode}
-            activeChapter={activeChapter}
-            shipTwitch={shipTwitch}
-            className="ag-instrument-canvas"
-          />
+          <InstrumentErrorBoundary className="ag-instrument-canvas">
+            <ProcessInstrumentGraph
+              mode={mode === 'twitch' ? 'land' : mode}
+              activeChapter={activeChapter}
+              shipTwitch={shipTwitch}
+              className="ag-instrument-canvas"
+            />
+          </InstrumentErrorBoundary>
         </VStack>
       </HStack>
 
