@@ -2,6 +2,10 @@
 
 **QA verify:** AG `#39` @ **`f57061e`** (+ craft CLEAR tip `4d4e4d7`). Paul-approved Class B look stills. **#26 HOLD** — no Apple retip / no separate redesign.
 
+**UX Canvas SoT:** `docs/initiatives/ag-website-ux-canvas.md` @ **`6b24c4bc`** (**#50**). Admin twin = same craft; one product, two doors.
+
+**DESIGN_AGENCY_BAR:** `#43` @ **`7e9e0b6`** — spectacle FAIL.
+
 **#62 @ `445e0f02`:** no agent legal/clickwrap; `/terms` pending. Cos-owned copy only.
 
 **Name:** Process Instrument in the Void.  

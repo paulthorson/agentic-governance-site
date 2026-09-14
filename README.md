@@ -10,6 +10,8 @@ Marketing + living board + admin twin for **Agentic Governance**.
 ## Status
 
 - Public `/` + admin twin: **Process Instrument in the Void** (AG `#39` @ `f57061e` / craft CLEAR `4d4e4d7`)
+- **UX Canvas SoT** `#50` @ `6b24c4bc` — one product, two doors
+- **DESIGN_AGENCY_BAR** `#43` @ `7e9e0b6`
 - **#26 HOLD** — unpaid Apple retip; no separate Apple look
 - **#62 @ `445e0f02`** — no agent legal/clickwrap; `/terms` pending
 - Feeds pull **read-only** from AG (traction / improve / scars) — site never invents numbers

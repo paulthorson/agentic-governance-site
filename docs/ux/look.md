@@ -4,6 +4,10 @@
 
 **QA verify tips:** AG `#39` @ **`f57061e`** (+ craft CLEAR tip `4d4e4d7`). Stills blob family identical through MERGED `3e8de677`.
 
+**UX Canvas SoT:** AG `docs/initiatives/ag-website-ux-canvas.md` @ **`6b24c4bc`** (**#50** MERGED) — screens gated; admin twin = one product, two doors.
+
+**DESIGN_AGENCY_BAR LIVE:** AG `#43` @ **`7e9e0b6`** — hierarchy, type, space, micro-interaction; spectacle beads/marble/confetti/glow-as-craft FAIL.
+
 **#26 HOLD** — unpaid Apple retip; do **not** implement a separate Apple look.
 
 **Website DS LOCKED:** [`design-system.md`](design-system.md) — Sage instrument · Advercase+Geist · Direct founder · Process Instrument in the Void.

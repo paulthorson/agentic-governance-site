@@ -2,6 +2,10 @@
 
 **SoT craft:** AG `#39` @ **`f57061e`** (+ craft CLEAR tip `4d4e4d7`). Full packet in AG `dashboard/docs/ux/design-system.md`.
 
+**UX Canvas SoT:** AG `docs/initiatives/ag-website-ux-canvas.md` @ **`6b24c4bc`** (**#50** MERGED).
+
+**DESIGN_AGENCY_BAR LIVE:** AG `#43` @ **`7e9e0b6`**.
+
 **Status:** Cos GO SIGNOFF 2026-09-14 DS LOCKED. Look APPROVED — Eng ships **#39 Process Instrument** only. **#26 HOLD** (no Apple retip). New stills still Cos→Paul.
 
 **#62 MERGED @ `445e0f02`:** public copy honesty LIVE. No agent legal/clickwrap. `/terms` pending. Cos owns site copy — no invented marketing beyond approved stills/DS.
