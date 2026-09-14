@@ -1,6 +1,6 @@
 'use client';
 
-import {useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import * as THREE from 'three';
 import {InstrumentFallback} from '@/components/process-instrument/InstrumentFallback';
 import type {ProcessChapterId} from '@/lib/process-chapters';
@@ -32,65 +32,69 @@ const LOOP_ORDER: ProcessChapterId[] = [
   'recap',
 ];
 
+/**
+ * Spatial clusters with real z-depth — denser measured KG beside chapters.
+ * No bead/sphere/ring marks at joints (DESIGN_AGENCY_BAR / #43 / rejected 9b1bba2).
+ */
 const NODES: NodeDef[] = [
-  {id: 'research', label: 'Research', position: [-1.6, 0.9, 0.2], kind: 'loop', chapter: 'research'},
-  {id: 'brief', label: 'Brief', position: [0.2, 1.35, -0.15], kind: 'loop', chapter: 'brief'},
-  {id: 'stills', label: 'Stills', position: [1.7, 0.55, 0.35], kind: 'loop', chapter: 'stills'},
-  {id: 'challenge', label: 'Challenge', position: [1.35, -0.75, -0.25], kind: 'loop', chapter: 'challenge'},
-  {id: 'ship', label: 'Ship', position: [-0.15, -1.25, 0.2], kind: 'loop', chapter: 'ship'},
-  {id: 'recap', label: 'Recap', position: [-1.55, -0.45, -0.3], kind: 'loop', chapter: 'recap'},
-  {id: 'next', label: 'Next', position: [-2.35, 0.2, 0.55], kind: 'context', chapter: 'next'},
-  {id: 'design', label: 'Design', position: [2.3, 0.1, -0.7], kind: 'context'},
-  {id: 'product', label: 'Product', position: [0.9, 2.0, 0.6], kind: 'context'},
-  {id: 'lead', label: 'Lead', position: [-0.8, 2.05, -0.55], kind: 'context'},
-  {id: 'build', label: 'Build', position: [2.1, -1.3, 0.45], kind: 'context'},
-  {id: 'p01', label: 'P-01', position: [-2.6, 1.4, -0.8], kind: 'code'},
-  {id: 'p02', label: 'P-02', position: [-2.8, -1.1, 0.3], kind: 'code'},
-  {id: 'p03', label: 'P-03', position: [0.4, -2.1, -0.7], kind: 'code'},
-  {id: 'p04', label: 'P-04', position: [2.7, 1.5, 0.2], kind: 'code'},
-  {id: 'p05', label: 'P-05', position: [2.55, -0.4, 0.9], kind: 'code'},
-  {id: 'p06', label: 'P-06', position: [-0.5, 0.2, -1.4], kind: 'code'},
-  {id: 'p07', label: 'P-07', position: [1.0, -0.2, 1.35], kind: 'code'},
+  {id: 'research', label: 'Research', position: [-1.55, 0.95, 0.55], kind: 'loop', chapter: 'research'},
+  {id: 'brief', label: 'Brief', position: [0.15, 1.45, -0.45], kind: 'loop', chapter: 'brief'},
+  {id: 'stills', label: 'Stills', position: [1.75, 0.65, 0.7], kind: 'loop', chapter: 'stills'},
+  {id: 'challenge', label: 'Challenge', position: [1.45, -0.7, -0.55], kind: 'loop', chapter: 'challenge'},
+  {id: 'ship', label: 'Ship', position: [-0.1, -1.35, 0.5], kind: 'loop', chapter: 'ship'},
+  {id: 'recap', label: 'Recap', position: [-1.6, -0.4, -0.65], kind: 'loop', chapter: 'recap'},
+  {id: 'next', label: 'Next', position: [-2.45, 0.25, 0.95], kind: 'context', chapter: 'next'},
+  {id: 'design', label: 'Design', position: [2.45, 0.15, -1.05], kind: 'context'},
+  {id: 'product', label: 'Product', position: [0.85, 2.15, 0.9], kind: 'context'},
+  {id: 'lead', label: 'Lead', position: [-0.85, 2.2, -0.85], kind: 'context'},
+  {id: 'build', label: 'Build', position: [2.25, -1.35, 0.75], kind: 'context'},
+  {id: 'p01', label: 'P-01', position: [-2.75, 1.55, -1.15], kind: 'code'},
+  {id: 'p02', label: 'P-02', position: [-2.95, -1.15, 0.55], kind: 'code'},
+  {id: 'p03', label: 'P-03', position: [0.35, -2.25, -1.05], kind: 'code'},
+  {id: 'p04', label: 'P-04', position: [2.9, 1.65, 0.35], kind: 'code'},
+  {id: 'p05', label: 'P-05', position: [2.7, -0.35, 1.25], kind: 'code'},
+  {id: 'p06', label: 'P-06', position: [-0.55, 0.15, -1.85], kind: 'code'},
+  {id: 'p07', label: 'P-07', position: [1.05, -0.15, 1.75], kind: 'code'},
+  {id: 'p08', label: 'P-08', position: [-1.9, 1.85, 1.35], kind: 'code'},
+  {id: 'p09', label: 'P-09', position: [1.55, 1.9, -1.45], kind: 'code'},
+  {id: 'p10', label: 'P-10', position: [-2.1, -1.7, -0.9], kind: 'code'},
 ];
 
 const CONTEXT_EDGES: Array<[string, string]> = [
   ['research', 'lead'],
   ['research', 'p01'],
+  ['research', 'p08'],
   ['brief', 'product'],
   ['brief', 'design'],
+  ['brief', 'p09'],
   ['stills', 'design'],
   ['stills', 'p04'],
+  ['stills', 'p07'],
   ['challenge', 'build'],
   ['challenge', 'p05'],
+  ['challenge', 'p03'],
   ['ship', 'build'],
   ['ship', 'p03'],
+  ['ship', 'p10'],
   ['recap', 'next'],
   ['recap', 'p02'],
+  ['recap', 'p06'],
   ['next', 'p01'],
+  ['next', 'p08'],
   ['design', 'p07'],
+  ['design', 'p05'],
   ['product', 'p06'],
+  ['product', 'p04'],
   ['lead', 'p06'],
+  ['lead', 'p09'],
   ['build', 'p07'],
+  ['build', 'p10'],
 ];
 
 const SAGE = 0x8a9a8e;
 const SAGE_DIM = 0x4a554e;
 const WASH = 0xffffff;
 const VOID = 0x030303;
-
-function canCreateWebGL(): boolean {
-  if (typeof document === 'undefined') return false;
-  try {
-    const canvas = document.createElement('canvas');
-    const gl =
-      canvas.getContext('webgl2') ||
-      canvas.getContext('webgl') ||
-      canvas.getContext('experimental-webgl');
-    return Boolean(gl);
-  } catch {
-    return false;
-  }
-}
 
 function makeLabelTexture(text: string, emphasis: boolean): THREE.CanvasTexture {
   const canvas = document.createElement('canvas');
@@ -104,13 +108,23 @@ function makeLabelTexture(text: string, emphasis: boolean): THREE.CanvasTexture 
   ctx.font = emphasis
     ? '500 28px Geist, ui-sans-serif, system-ui, sans-serif'
     : '400 22px Geist, ui-sans-serif, system-ui, sans-serif';
-  ctx.fillStyle = emphasis ? 'rgba(242,241,236,0.92)' : 'rgba(138,154,142,0.45)';
+  ctx.fillStyle = emphasis
+    ? 'rgba(242,241,236,0.92)'
+    : 'rgba(138,154,142,0.42)';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(text, canvas.width / 2, canvas.height / 2);
   const texture = new THREE.CanvasTexture(canvas);
   texture.needsUpdate = true;
   return texture;
+}
+
+/** Fluid arc between two loop nodes — depth via mid-point z lift. */
+function loopCurve(a: THREE.Vector3, b: THREE.Vector3, lift: number) {
+  const mid = a.clone().lerp(b, 0.5);
+  mid.z += lift;
+  mid.y += (a.y + b.y) * 0.04;
+  return new THREE.CatmullRomCurve3([a, mid, b]);
 }
 
 export function ProcessInstrumentGraph({
@@ -128,17 +142,18 @@ export function ProcessInstrumentGraph({
   const [paintState, setPaintState] = useState<'pending' | 'live' | 'fallback'>(
     'pending',
   );
+  const [mountKey, setMountKey] = useState(0);
 
   stateRef.current = {mode, activeChapter, shipTwitch};
+
+  const retryPaint = useCallback(() => {
+    setPaintState('pending');
+    setMountKey((k) => k + 1);
+  }, []);
 
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
-
-    if (!canCreateWebGL()) {
-      setPaintState('fallback');
-      return;
-    }
 
     /** False after unmount or fatal paint error — stops rAF before disposed render. */
     let alive = true;
@@ -162,16 +177,18 @@ export function ProcessInstrumentGraph({
       return t;
     };
 
-    const tearDownGl = () => {
+    const tearDownGl = (forceLoss: boolean) => {
       cancelAnimationFrame(raf);
       if (canvas) {
         canvas.removeEventListener('webglcontextlost', onContextLost);
       }
       if (renderer) {
-        try {
-          renderer.forceContextLoss();
-        } catch {
-          // already lost
+        if (forceLoss) {
+          try {
+            renderer.forceContextLoss();
+          } catch {
+            // already lost
+          }
         }
         renderer.dispose();
         if (canvas && canvas.parentNode === host) {
@@ -211,7 +228,7 @@ export function ProcessInstrumentGraph({
         console.warn('[ProcessInstrument] WebGL paint failed', err);
       }
       alive = false;
-      tearDownGl();
+      tearDownGl(true);
       setPaintState('fallback');
     };
 
@@ -224,7 +241,6 @@ export function ProcessInstrumentGraph({
       if (!alive || !renderer || !host) return;
       const w = Math.max(host.clientWidth || 640, 1);
       const h = Math.max(host.clientHeight || 640, 1);
-      // camera closed over below — assigned after init
       resizeCamera(w, h);
       renderer.setSize(w, h, false);
     };
@@ -238,15 +254,18 @@ export function ProcessInstrumentGraph({
       const height = Math.max(host.clientHeight || 640, 1);
 
       const scene = new THREE.Scene();
-      scene.fog = new THREE.FogExp2(VOID, 0.045);
+      scene.fog = new THREE.FogExp2(VOID, 0.038);
 
-      const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 100);
-      camera.position.set(0.35, 0.2, 6.2);
+      // Oblique perspective so land reads true-3D (not a flat polygon kit).
+      const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 100);
+      camera.position.set(2.05, 1.55, 5.35);
+      camera.lookAt(0.05, 0.05, 0);
       resizeCamera = (w, h) => {
         camera.aspect = w / h;
         camera.updateProjectionMatrix();
       };
 
+      // Construct renderer directly — no throwaway probe context (iOS slot leak).
       renderer = new THREE.WebGLRenderer({
         antialias: true,
         alpha: true,
@@ -267,73 +286,39 @@ export function ProcessInstrumentGraph({
       const root = new THREE.Group();
       scene.add(root);
 
+      // Atmosphere rain codes (≤10% gray) — density without spectacle.
       const rain = new THREE.Group();
       const rainMat = trackMat(
         new THREE.MeshBasicMaterial({
           color: 0x6a736c,
           transparent: true,
-          opacity: 0.08,
+          opacity: 0.09,
         }),
       );
-      for (let i = 0; i < 36; i += 1) {
+      for (let i = 0; i < 64; i += 1) {
         const mesh = new THREE.Mesh(
-          trackGeo(new THREE.PlaneGeometry(0.08, 0.02)),
+          trackGeo(new THREE.PlaneGeometry(0.1, 0.018)),
           rainMat,
         );
         mesh.position.set(
-          (Math.random() - 0.5) * 8,
-          (Math.random() - 0.5) * 6,
-          -2 - Math.random() * 3,
+          (Math.random() - 0.5) * 9,
+          (Math.random() - 0.5) * 7,
+          -1.5 - Math.random() * 4,
         );
+        mesh.rotation.z = (Math.random() - 0.5) * 0.4;
         rain.add(mesh);
       }
       scene.add(rain);
 
       const nodeMap = new Map<string, THREE.Vector3>();
-      const nodeMeshes = new Map<string, THREE.Mesh>();
+      const labelSprites = new Map<string, THREE.Sprite>();
 
       for (const node of NODES) {
         const pos = new THREE.Vector3(...node.position);
         nodeMap.set(node.id, pos);
 
         const isLoop = node.kind === 'loop';
-        const mat = trackMat(
-          new THREE.MeshBasicMaterial({
-            color: isLoop ? SAGE : SAGE_DIM,
-            transparent: true,
-            opacity: isLoop ? 0.95 : 0.35,
-            wireframe: false,
-          }),
-        );
-        const ring = new THREE.Mesh(
-          trackGeo(
-            new THREE.RingGeometry(
-              isLoop ? 0.05 : 0.028,
-              isLoop ? 0.07 : 0.04,
-              24,
-            ),
-          ),
-          trackMat(
-            new THREE.MeshBasicMaterial({
-              color: isLoop ? 0xd8ddd6 : SAGE_DIM,
-              transparent: true,
-              opacity: isLoop ? 0.85 : 0.28,
-              side: THREE.DoubleSide,
-            }),
-          ),
-        );
-        ring.position.copy(pos);
-        root.add(ring);
-
-        const mesh = new THREE.Mesh(
-          trackGeo(new THREE.SphereGeometry(isLoop ? 0.055 : 0.032, 16, 16)),
-          mat,
-        );
-        mesh.position.copy(pos);
-        mesh.scale.setScalar(0.35);
-        root.add(mesh);
-        nodeMeshes.set(node.id, mesh);
-
+        // Labels only at joints — no Sphere/Ring beads.
         const labelMap = trackTex(makeLabelTexture(node.label, isLoop));
         const sprite = new THREE.Sprite(
           trackMat(
@@ -341,12 +326,16 @@ export function ProcessInstrumentGraph({
               map: labelMap,
               transparent: true,
               depthTest: false,
+              opacity: isLoop ? 1 : node.kind === 'context' ? 0.72 : 0.5,
             }),
           ),
         );
-        sprite.position.copy(pos).add(new THREE.Vector3(0, isLoop ? 0.18 : 0.12, 0));
-        sprite.scale.set(isLoop ? 1.1 : 0.75, isLoop ? 0.28 : 0.2, 1);
+        sprite.position
+          .copy(pos)
+          .add(new THREE.Vector3(0, isLoop ? 0.16 : 0.1, 0.02));
+        sprite.scale.set(isLoop ? 1.05 : 0.72, isLoop ? 0.26 : 0.18, 1);
         root.add(sprite);
+        labelSprites.set(node.id, sprite);
       }
 
       const loopEdges: Array<[string, string]> = [];
@@ -361,13 +350,17 @@ export function ProcessInstrumentGraph({
         const pa = nodeMap.get(a);
         const pb = nodeMap.get(b);
         if (!pa || !pb) continue;
+        const mid = pa.clone().lerp(pb, 0.5);
+        mid.z += (pa.z + pb.z) * 0.08 + (Math.random() - 0.5) * 0.15;
+        const curve = new THREE.CatmullRomCurve3([pa, mid, pb]);
+        const pts = curve.getPoints(10);
         const line = new THREE.Line(
-          trackGeo(new THREE.BufferGeometry().setFromPoints([pa, pb])),
+          trackGeo(new THREE.BufferGeometry().setFromPoints(pts)),
           trackMat(
             new THREE.LineBasicMaterial({
               color: SAGE_DIM,
               transparent: true,
-              opacity: 0.22,
+              opacity: 0.28,
             }),
           ),
         );
@@ -375,31 +368,33 @@ export function ProcessInstrumentGraph({
         contextLines.push(line);
       }
 
-      const washLines: THREE.Line[] = [];
+      // Active path: sage tube + white wash tube INSIDE stroke (not a bead object).
+      const washTubes: THREE.Mesh[] = [];
       const pathStrokes: THREE.Mesh[] = [];
-      for (const [a, b] of loopEdges) {
+      for (let i = 0; i < loopEdges.length; i += 1) {
+        const [a, b] = loopEdges[i];
         const pa = nodeMap.get(a);
         const pb = nodeMap.get(b);
         if (!pa || !pb) continue;
 
-        const curve = new THREE.LineCurve3(pa, pb);
-        const tube = new THREE.Mesh(
-          trackGeo(new THREE.TubeGeometry(curve, 12, 0.018, 8, false)),
+        const curve = loopCurve(pa, pb, 0.22 + (i % 2) * 0.08);
+        const stroke = new THREE.Mesh(
+          trackGeo(new THREE.TubeGeometry(curve, 28, 0.032, 10, false)),
           trackMat(
             new THREE.MeshBasicMaterial({
               color: SAGE,
               transparent: true,
-              opacity: 0.55,
+              opacity: 0.62,
             }),
           ),
         );
-        root.add(tube);
-        pathStrokes.push(tube);
+        root.add(stroke);
+        pathStrokes.push(stroke);
 
-        const wash = new THREE.Line(
-          trackGeo(new THREE.BufferGeometry().setFromPoints([pa, pb])),
+        const wash = new THREE.Mesh(
+          trackGeo(new THREE.TubeGeometry(curve, 28, 0.014, 8, false)),
           trackMat(
-            new THREE.LineBasicMaterial({
+            new THREE.MeshBasicMaterial({
               color: WASH,
               transparent: true,
               opacity: 0.55,
@@ -407,11 +402,33 @@ export function ProcessInstrumentGraph({
           ),
         );
         root.add(wash);
-        washLines.push(wash);
+        washTubes.push(wash);
       }
 
-      const shipMesh = nodeMeshes.get('ship');
+      // Ship mark twitch — path-local luminance pulse, not a joint bead.
+      const shipPos = nodeMap.get('ship');
+      const buildPos = nodeMap.get('build');
+      let shipMark: THREE.Mesh | null = null;
+      if (shipPos && buildPos) {
+        const markCurve = loopCurve(shipPos, buildPos, 0.12);
+        shipMark = new THREE.Mesh(
+          trackGeo(new THREE.TubeGeometry(markCurve, 12, 0.01, 6, false)),
+          trackMat(
+            new THREE.MeshBasicMaterial({
+              color: WASH,
+              transparent: true,
+              opacity: 0.35,
+            }),
+          ),
+        );
+        root.add(shipMark);
+      }
+
       const clock = new THREE.Clock();
+      const landCam = new THREE.Vector3(2.05, 1.55, 5.35);
+      const hoverCam = new THREE.Vector3(1.55, 1.15, 4.55);
+      const inspectCam = new THREE.Vector3(1.05, 0.85, 3.65);
+      const camTarget = landCam.clone();
       window.addEventListener('resize', onResize);
 
       const animate = () => {
@@ -423,31 +440,31 @@ export function ProcessInstrumentGraph({
           const {mode: m, activeChapter: chapter, shipTwitch: twitch} =
             stateRef.current;
 
-          root.rotation.y = Math.sin(t * 0.12) * 0.18 + 0.35;
-          root.rotation.x = Math.sin(t * 0.09) * 0.08 + 0.12;
-          root.position.y = Math.sin(t * 0.15) * 0.06;
-          root.position.x = Math.cos(t * 0.11) * 0.05;
+          // Continuous slight drift — living instrument, not a static diagram.
+          root.rotation.y = Math.sin(t * 0.11) * 0.16 + 0.42;
+          root.rotation.x = Math.sin(t * 0.08) * 0.1 + 0.18;
+          root.rotation.z = Math.cos(t * 0.07) * 0.04;
+          root.position.y = Math.sin(t * 0.14) * 0.07;
+          root.position.x = Math.cos(t * 0.1) * 0.06;
 
           const inspect = m === 'inspect';
           const hover = m === 'hover' || inspect;
-          camera.position.z = THREE.MathUtils.lerp(
-            camera.position.z,
-            inspect ? 4.4 : hover ? 5.4 : 6.2,
-            0.04,
-          );
+          camTarget.copy(inspect ? inspectCam : hover ? hoverCam : landCam);
+          camera.position.lerp(camTarget, 0.045);
+
           if (chapter && hover) {
             const focus = nodeMap.get(chapter);
             if (focus) {
-              camera.lookAt(focus.x * 0.35, focus.y * 0.35, focus.z * 0.35);
+              camera.lookAt(focus.x * 0.4, focus.y * 0.4, focus.z * 0.35);
             }
           } else {
-            camera.lookAt(0, 0, 0);
+            camera.lookAt(0.05, 0.05, 0);
           }
 
           for (let i = 0; i < LOOP_ORDER.length; i += 1) {
             const id = LOOP_ORDER[i];
             const stroke = pathStrokes[i];
-            const wash = washLines[i];
+            const wash = washTubes[i];
             if (!stroke || !wash) continue;
             const isNeighbor =
               !chapter ||
@@ -456,29 +473,42 @@ export function ProcessInstrumentGraph({
                 chapter ||
               LOOP_ORDER[(i + 1) % LOOP_ORDER.length] === chapter;
             const strokeMat = stroke.material as THREE.MeshBasicMaterial;
-            const washMat = wash.material as THREE.LineBasicMaterial;
+            const washMat = wash.material as THREE.MeshBasicMaterial;
             if (hover && chapter) {
-              strokeMat.opacity = isNeighbor ? 0.75 : 0.18;
-              washMat.opacity = isNeighbor ? 0.7 : 0.12;
+              strokeMat.opacity = isNeighbor ? 0.82 : 0.16;
+              washMat.opacity = isNeighbor ? 0.72 : 0.08;
             } else {
-              strokeMat.opacity = 0.55;
-              washMat.opacity = 0.5 + Math.sin(t * 0.8 + i) * 0.05;
+              strokeMat.opacity = 0.58;
+              washMat.opacity = 0.48 + Math.sin(t * 0.85 + i) * 0.08;
             }
           }
 
           for (const line of contextLines) {
             const mat = line.material as THREE.LineBasicMaterial;
-            mat.opacity = hover ? 0.35 : 0.2;
+            mat.opacity = hover ? 0.38 : 0.24;
           }
 
-          if (shipMesh && twitch) {
-            const pulse = 1 + Math.sin(t * 10) * 0.12;
-            shipMesh.scale.setScalar(0.35 * pulse);
-          } else if (shipMesh) {
-            shipMesh.scale.setScalar(0.35);
+          if (shipMark) {
+            const mat = shipMark.material as THREE.MeshBasicMaterial;
+            if (twitch) {
+              mat.opacity = 0.45 + Math.sin(t * 10) * 0.35;
+              shipMark.scale.setScalar(1 + Math.sin(t * 10) * 0.08);
+            } else {
+              mat.opacity = 0.28;
+              shipMark.scale.setScalar(1);
+            }
           }
 
-          rain.rotation.y = t * 0.02;
+          const shipLabel = labelSprites.get('ship');
+          if (shipLabel) {
+            const labelMat = shipLabel.material as THREE.SpriteMaterial;
+            labelMat.opacity = twitch
+              ? 0.75 + Math.sin(t * 10) * 0.25
+              : 1;
+          }
+
+          rain.rotation.y = t * 0.018;
+          rain.rotation.x = Math.sin(t * 0.05) * 0.03;
 
           // Re-check after work — cleanup may have run mid-frame.
           if (!alive || !renderer) return;
@@ -489,7 +519,7 @@ export function ProcessInstrumentGraph({
       };
 
       if (!alive) {
-        tearDownGl();
+        tearDownGl(false);
         return;
       }
 
@@ -499,7 +529,8 @@ export function ProcessInstrumentGraph({
       return () => {
         alive = false;
         window.removeEventListener('resize', onResize);
-        tearDownGl();
+        // Soft dispose on remount — avoid forceContextLoss poisoning iOS slots.
+        tearDownGl(false);
       };
     } catch (err) {
       window.removeEventListener('resize', onResize);
@@ -507,13 +538,13 @@ export function ProcessInstrumentGraph({
       return () => {
         alive = false;
         window.removeEventListener('resize', onResize);
-        tearDownGl();
+        tearDownGl(false);
       };
     }
-  }, []);
+  }, [mountKey]);
 
   // Host stays free of React children so reconciliation never removes the
-  // imperatively mounted <canvas>. Fallback is a sibling overlay.
+  // imperatively mounted <canvas>. Soft-fail is designed empty + retry.
   return (
     <div
       className={className}
@@ -531,13 +562,13 @@ export function ProcessInstrumentGraph({
         style={{
           position: 'absolute',
           inset: 0,
-          // Keep layout for WebGL sizing while fallback is up.
           visibility: paintState === 'live' ? 'visible' : 'hidden',
         }}
       />
       {paintState !== 'live' ? (
         <InstrumentFallback
           reason={paintState === 'fallback' ? 'unavailable' : 'loading'}
+          onRetry={paintState === 'fallback' ? retryPaint : undefined}
         />
       ) : null}
     </div>

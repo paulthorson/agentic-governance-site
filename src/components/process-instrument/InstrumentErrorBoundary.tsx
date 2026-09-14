@@ -15,6 +15,7 @@ type State = {
 /**
  * Catch paint/hydrate throws from the 3D instrument so the public `/`
  * shell stays up — never take down the tab for a WebGL failure.
+ * Soft-fail is designed empty + retry (not a flat diagram hero).
  */
 export class InstrumentErrorBoundary extends Component<Props, State> {
   state: State = {hasError: false};
@@ -29,12 +30,17 @@ export class InstrumentErrorBoundary extends Component<Props, State> {
     }
   }
 
+  private retry = () => {
+    this.setState({hasError: false});
+  };
+
   render() {
     if (this.state.hasError) {
       return (
         <InstrumentFallback
           className={this.props.className}
           reason="unavailable"
+          onRetry={this.retry}
         />
       );
     }

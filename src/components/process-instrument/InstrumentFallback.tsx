@@ -1,20 +1,24 @@
 'use client';
 
 /**
- * Designed non-WebGL stage — keeps the right instrument plane present
- * when canvas/WebGL cannot paint. Matches void + sage craft; no KPIs.
+ * Soft-fail / loading stage for the instrument plane.
+ *
+ * Designed empty only — never a flat SVG polygon/bead kit as the public face.
+ * Optional retry keeps the shell up when WebGL cannot paint.
  */
 export function InstrumentFallback({
   className,
   reason = 'unavailable',
+  onRetry,
 }: {
   className?: string;
   reason?: 'loading' | 'unavailable';
+  onRetry?: () => void;
 }) {
   return (
     <div
       className={className}
-      aria-hidden
+      aria-hidden={reason === 'loading' ? true : undefined}
       data-instrument-fallback={reason}
       style={{
         width: '100%',
@@ -22,55 +26,34 @@ export function InstrumentFallback({
         minHeight: 'var(--ag-instrument-min-h)',
         position: 'relative',
         overflow: 'hidden',
+        background: 'transparent',
       }}
     >
-      <svg
-        viewBox="0 0 640 640"
-        width="100%"
-        height="100%"
-        preserveAspectRatio="xMidYMid meet"
-        style={{display: 'block', opacity: reason === 'loading' ? 0.35 : 0.55}}
-      >
-        <ellipse
-          cx="320"
-          cy="310"
-          rx="168"
-          ry="150"
-          fill="none"
-          stroke="rgba(138,154,142,0.45)"
-          strokeWidth="1.5"
-        />
-        <ellipse
-          cx="320"
-          cy="310"
-          rx="168"
-          ry="150"
-          fill="none"
-          stroke="rgba(242,241,236,0.28)"
-          strokeWidth="0.75"
-          strokeDasharray="4 10"
-        />
-        {[
-          [220, 220],
-          [340, 185],
-          [445, 265],
-          [420, 390],
-          [300, 445],
-          [205, 355],
-        ].map(([x, y], i) => (
-          <g key={i}>
-            <circle
-              cx={x}
-              cy={y}
-              r="5"
-              fill="none"
-              stroke="rgba(216,221,214,0.7)"
-              strokeWidth="1.25"
-            />
-            <circle cx={x} cy={y} r="1.5" fill="rgba(138,154,142,0.85)" />
-          </g>
-        ))}
-      </svg>
+      {reason === 'unavailable' && onRetry ? (
+        <button
+          type="button"
+          onClick={onRetry}
+          data-instrument-retry
+          style={{
+            position: 'absolute',
+            right: 'var(--spacing-4)',
+            bottom: 'var(--spacing-4)',
+            appearance: 'none',
+            border: '1px solid var(--ag-panel-border)',
+            background: 'var(--ag-panel)',
+            color: 'var(--ag-sage-lift)',
+            fontFamily: 'var(--font-family-body)',
+            fontSize: '0.8125rem',
+            letterSpacing: '0.04em',
+            paddingBlock: 'var(--spacing-2)',
+            paddingInline: 'var(--spacing-3)',
+            borderRadius: 'var(--radius-md)',
+            cursor: 'pointer',
+          }}
+        >
+          Retry instrument
+        </button>
+      ) : null}
     </div>
   );
 }
