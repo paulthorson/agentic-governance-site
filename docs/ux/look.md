@@ -2,7 +2,7 @@
 
 **Look APPROVED (Cos GO Paul 2026-09-14).** Eng ships approved **#39** Process Instrument craft only.
 
-**QA verify tips:** AG `#39` @ **`f57061e`** (+ craft CLEAR tip `4d4e4d7`). Stills blob family identical through MERGED `3e8de677`.
+**SoT:** AG `#39` **MERGED LIVE @ `3e8de677`**. QA also verify vs `#39` @ **`f57061e`** (+ craft CLEAR tip `4d4e4d7`). Stills blob family identical across these tips.
 
 **UX Canvas SoT:** AG `docs/initiatives/ag-website-ux-canvas.md` @ **`6b24c4bc`** (**#50** MERGED) — screens gated; admin twin = one product, two doors.
 
@@ -36,4 +36,4 @@ Get AG → AG git (Apache 2.0 LICENSE alone). **No acceptance/clickwrap gate.** 
 
 ## Visual SoT
 
-See [`qa/visual-qa-graph.md`](qa/visual-qa-graph.md) + `qa/visual-stills/graph-*.png` (QA vs `f57061e` / `4d4e4d7`).
+See [`qa/visual-qa-graph.md`](qa/visual-qa-graph.md) + `qa/visual-stills/graph-*.png` (SoT `3e8de677`; QA vs `f57061e` / `4d4e4d7`).

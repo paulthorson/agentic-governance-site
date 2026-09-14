@@ -1,6 +1,6 @@
 # AG public website — design system (site mirror)
 
-**SoT craft:** AG `#39` @ **`f57061e`** (+ craft CLEAR tip `4d4e4d7`). Full packet in AG `dashboard/docs/ux/design-system.md`.
+**SoT craft:** AG `#39` **MERGED LIVE @ `3e8de677`** (+ QA tip `f57061e` / craft CLEAR `4d4e4d7`). Full packet in AG `dashboard/docs/ux/design-system.md`.
 
 **UX Canvas SoT:** AG `docs/initiatives/ag-website-ux-canvas.md` @ **`6b24c4bc`** (**#50** MERGED).
 
