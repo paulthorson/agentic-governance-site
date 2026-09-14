@@ -14,12 +14,19 @@ Marketing + living board + admin twin for **Agentic Governance**.
 - Feeds pull **read-only** from AG (traction / improve / scars) — site never invents numbers
 - Meta Astryx remains the UI SoT
 
-## Get AG + Terms (Paul LOCK)
+## Get AG + Terms (Cos SUPERSEDE — Apache 2.0)
 
-1. Public **Get AG** CTAs route to [`/terms`](./src/app/terms/page.tsx) first.
-2. `/terms` is a **stub** gate (liability + anonymous-improve basics).
-3. **Lawyer review before ship** — stub wording is not legal counsel; replace before public launch.
-4. After terms, download always targets `https://github.com/paulthorson/agentic-governance` — never this site repo.
+1. Get AG → [`/terms`](./src/app/terms/page.tsx) first (**FAIL browsewrap**).
+2. **Clickwrap:** own free will · **as-is** · risk accepted — **not** anonymous-improve / telemetry trade.
+3. **Contracting party blank until lawyer** — no invented LLC / personal party name.
+4. **Apache 2.0** SoT: AG [#60](https://github.com/paulthorson/agentic-governance/pull/60) @ `86e98081` (not #57-only cites).
+5. **No default telemetry** · opt-in only OK · telemetry UI **defaults OFF**.
+6. Delaware governing-law intent.
+7. Banner: **DRAFT — lawyer review required before ship**.
+8. **Re-gated:** Quick start / repo open CTAs → `/terms`. Docs-only links stay docs.
+9. **Named ungated:** `https://github.com/paulthorson/agentic-governance/releases` — site does not deep-link.
+10. Look HOLD #39; this PR stays **draft** (HOLD merge: Adv stamp + Paul entity call + Cos craft).
+
 
 ## Feeds (read-only consume)
 
