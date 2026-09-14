@@ -1,18 +1,20 @@
 import type {Metadata} from 'next';
-import {Figtree} from 'next/font/google';
+import {EB_Garamond} from 'next/font/google';
+import {GeistSans} from 'geist/font/sans';
 import './globals.css';
 import {Providers} from './providers';
 
-const figtree = Figtree({
+/** Advercase stand-in until licensed webfont (Cos DS / AG #39 @ 3e8de677). */
+const ebGaramond = EB_Garamond({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-figtree',
+  variable: '--font-ag-display',
 });
 
 export const metadata: Metadata = {
   title: 'Agentic Governance',
   description:
-    'Public living board for Agentic Governance. Measured KPIs only — never invented numbers. UI powered by Meta Astryx.',
+    'The loop that keeps AI teams honest — visible, governed, ship only what clears.',
 };
 
 export default function RootLayout({
@@ -21,8 +23,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-astryx-theme="neutral" className={figtree.variable}>
-      <body style={{fontFamily: 'var(--font-family-body)'}}>
+    <html
+      lang="en"
+      data-astryx-theme="neutral"
+      className={`${ebGaramond.variable} ${GeistSans.variable}`}
+    >
+      <body
+        className="ag-root"
+        style={{
+          fontFamily: 'var(--font-family-body)',
+          background: 'var(--ag-void)',
+          color: 'var(--ag-ink)',
+          margin: 0,
+        }}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

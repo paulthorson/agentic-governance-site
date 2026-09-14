@@ -9,10 +9,10 @@ Marketing + living board + admin twin for **Agentic Governance**.
 
 ## Status
 
-- Extracted living board + admin twin from AG `dashboard/` (tip `e7bb36e`)
-- **Look pixels HOLD** (#39 / #26) — current dashboard UI as-is, not Process Instrument redesign
+- Public `/` + admin twin: **Process Instrument in the Void** (AG `#39` MERGED LIVE @ `3e8de677`, craft CLEAR @ `4d4e4d7`)
+- **#26 HOLD** — no new redesign beyond approved stills
 - Feeds pull **read-only** from AG (traction / improve / scars) — site never invents numbers
-- Meta Astryx remains the UI SoT
+- Meta Astryx remains the UI system; void craft tokens are site-local (`--ag-*`)
 
 ## Get AG + Terms
 
@@ -22,7 +22,7 @@ Live behavior (PR [#4](https://github.com/paulthorson/agentic-governance-site/pu
 2. **`/terms`** → pending notice only (“Terms of use: pending.”) — not a live agreement; no checkbox / disabled Continue.
 3. **`docs/terms.md`** — review residue only; not rendered as a live agreement. Site legal pages are authored by humans later.
 4. Product license SoT remains **Apache 2.0** on the AG repo ([#60](https://github.com/paulthorson/agentic-governance/pull/60) @ `86e98081`).
-5. Look HOLD #39.
+5. Look APPROVED #39 MERGED LIVE @ `3e8de677` — Eng ships approved stills; #26 HOLD for new redesigns.
 
 ## Feeds (read-only consume)
 
