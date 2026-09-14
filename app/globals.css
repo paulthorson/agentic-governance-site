@@ -1,0 +1,35 @@
+:root {
+  --bg: #0f1113;
+  --bg-accent: #161a1e;
+  --fg: #e8eaed;
+  --muted: #9aa0a6;
+  --line: #2a2f36;
+  --cta: #d4d7db;
+  --cta-fg: #0f1113;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -10%, #1c2229 0%, transparent 55%),
+    linear-gradient(180deg, var(--bg-accent) 0%, var(--bg) 100%);
+  color: var(--fg);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
