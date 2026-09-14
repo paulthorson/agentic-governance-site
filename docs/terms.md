@@ -1,14 +1,14 @@
 # Terms gate (Get AG) — DRAFT stub
 
-**Paul CONFIRMED / Cos LOCK:**
+**Paul LOCK UPDATE** (supersedes prior MIT pointer):
 
 | Lock | Detail |
 |---|---|
-| License | **MIT** |
+| License | **Apache 2.0** (pointer to AG `LICENSE` + Apache 2.0 text) |
+| Clickwrap | Install of **own free will** · **accept risk** · **as-is** |
 | Telemetry | **No default telemetry**; opt-in only OK; any telemetry UI **defaults OFF** |
-| Clickwrap | **As-is Terms accept** only (+ as-is absolve intent) |
 | Not clickwrap | Anonymous-improve trade / telemetry-as-price-of-download |
-| Governing law intent | **Delaware** + MIT `LICENSE` pointer |
+| Governing law intent | **Delaware** (still applicable) |
 | Ship | Production ToS **NOT** until licensed attorney — keep PR **draft** + lawyer banner |
 | Look | HOLD #39 — no Get AG CTA pixel polish beyond clickwrap stub |
 

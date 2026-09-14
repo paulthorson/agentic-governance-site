@@ -14,12 +14,12 @@ Marketing + living board + admin twin for **Agentic Governance**.
 - Feeds pull **read-only** from AG (traction / improve / scars) — site never invents numbers
 - Meta Astryx remains the UI SoT
 
-## Get AG + Terms (Paul CONFIRMED / Cos LOCK)
+## Get AG + Terms (Paul LOCK — Apache 2.0)
 
 1. Get AG → [`/terms`](./src/app/terms/page.tsx) first (**FAIL browsewrap**).
-2. **Clickwrap = as-is Terms accept** (+ as-is absolve intent) — **not** anonymous-improve / telemetry trade.
-3. **MIT** · **no default telemetry** · opt-in only OK · any telemetry UI **defaults OFF**.
-4. Pointers: MIT `LICENSE` on AG + Delaware governing-law intent.
+2. **Clickwrap:** install of **own free will** · **accept risk** · **as-is** — **not** anonymous-improve / telemetry trade.
+3. **Apache 2.0** (supersedes prior MIT pointer) · **no default telemetry** · opt-in only OK · any telemetry UI **defaults OFF**.
+4. Pointers: Apache 2.0 `LICENSE` on AG + Delaware governing-law intent.
 5. DRAFT stub cites AG [#57](https://github.com/paulthorson/agentic-governance/pull/57) @ `9b5bcd9` until superseding amend (`bc-e4300373`).
 6. Banner: **DRAFT — lawyer review required before ship**. Production ToS NOT until counsel.
 7. Download → `https://github.com/paulthorson/agentic-governance` only.

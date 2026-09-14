@@ -20,7 +20,9 @@ import {
 import {CubeIcon} from '@heroicons/react/24/outline';
 
 const REPO_URL = 'https://github.com/paulthorson/agentic-governance';
+/** Paul LOCK UPDATE: Apache 2.0 supersedes prior MIT pointer. */
 const LICENSE_URL = `${REPO_URL}/blob/main/LICENSE`;
+const APACHE_URL = 'https://www.apache.org/licenses/LICENSE-2.0';
 /** AG #57 MERGED LIVE @ 9b5bcd9 — DRAFT outline SoT until superseding AG docs amend lands. */
 const OUTLINE_SOT_URL =
   'https://github.com/paulthorson/agentic-governance/blob/9b5bcd9/docs/legal/get-ag-terms-outline.md';
@@ -28,10 +30,9 @@ const OUTLINE_PR_URL =
   'https://github.com/paulthorson/agentic-governance/pull/57';
 
 /**
- * Get AG clickwrap — Paul CONFIRMED / Cos LOCK:
- * MIT · no default telemetry · opt-in only OK · as-is absolve ·
- * clickwrap = as-is Terms accept · telemetry UI default OFF ·
- * Delaware + MIT pointer · no anonymous-improve trade.
+ * Get AG clickwrap — Paul LOCK UPDATE:
+ * Apache 2.0 · install of own free will / accept risk / as-is ·
+ * no default telemetry · opt-in OK · no anon-improve trade · Delaware ·
  * Production ToS NOT until counsel. Stay DRAFT. Look HOLD — no #39.
  */
 export default function TermsPage() {
@@ -70,37 +71,39 @@ export default function TermsPage() {
 
         <VStack gap={2}>
           <Text type="supporting" color="secondary">
-            DRAFT · Paul CONFIRMED · MIT · no default telemetry
+            DRAFT · Paul LOCK · Apache 2.0 · no default telemetry
           </Text>
           <Heading level={1} type="display-3" textWrap="balance">
             Terms before Get AG
           </Heading>
           <Text type="body" color="secondary" textWrap="balance">
-            Clickwrap = as-is Terms accept only. Download is MIT-licensed AG —
-            never this marketing site. No telemetry or anonymous-improve trade
-            as the price of download.
+            Install of your own free will. You accept the risk. Software is
+            provided as-is. Download targets Apache 2.0–licensed AG — never this
+            marketing site. No telemetry or anonymous-improve trade as the
+            price of download.
           </Text>
         </VStack>
 
         <Banner
           status="info"
-          title="Paul CONFIRMED — MIT / no default telemetry"
-          description="Cos LOCK settled: MIT-only product; no default telemetry (opt-in only OK; any telemetry UI defaults OFF). Clickwrap is as-is Terms accept + as-is absolve — not a data trade. Outline SoT AG #57 @ 9b5bcd9 until superseding amend (bc-e4300373) lands."
+          title="Paul LOCK — Apache 2.0 + install clickwrap"
+          description="License pointer is Apache 2.0 (supersedes prior MIT). Clickwrap: own free will · accept risk · as-is. No default telemetry (opt-in OK; UI default OFF). No anonymous-improve trade. Delaware governing-law intent. Outline SoT AG #57 @ 9b5bcd9 until superseding amend (bc-e4300373) lands."
         />
 
         <Card padding={6} elevation="med">
           <VStack gap={4} hAlign="start">
             <HStack gap={2} vAlign="center">
               <Icon icon={ScaleIcon} size="md" />
-              <Heading level={2}>As-is Terms accept (stub)</Heading>
+              <Heading level={2}>Install clickwrap (stub)</Heading>
             </HStack>
             <Text type="supporting" color="secondary">
               Intent placeholders only — counsel replaces before ship.
             </Text>
             <List>
-              <ListItem label="Clickwrap = as-is Terms accept only (FAIL browsewrap)." />
-              <ListItem label="As-is absolve / no warranty — operator assumes use risk; counsel drafts liability." />
-              <ListItem label="Product license: MIT (see LICENSE on AG)." />
+              <ListItem label="I install Agentic Governance of my own free will." />
+              <ListItem label="I accept the risk of use." />
+              <ListItem label="Software and docs are provided as-is, without warranty." />
+              <ListItem label="Product license pointer: Apache License 2.0 (see LICENSE on AG)." />
               <ListItem label="No default telemetry. Opt-in only OK; if any telemetry UI exists, it defaults OFF." />
               <ListItem label="No anonymous-improve trade and no telemetry-as-price-of-download." />
               <ListItem label="Governing law intent: Delaware (Paul LOCK) — no invented venue/city without Paul + counsel." />
@@ -108,7 +111,12 @@ export default function TermsPage() {
             </List>
 
             <HStack gap={3} wrap="wrap">
-              <Button label="MIT LICENSE on AG" variant="secondary" href={LICENSE_URL} />
+              <Button
+                label="Apache 2.0 LICENSE on AG"
+                variant="secondary"
+                href={LICENSE_URL}
+              />
+              <Button label="Apache 2.0 text" variant="ghost" href={APACHE_URL} />
               <Button
                 label="DRAFT outline SoT (#57)"
                 variant="ghost"
@@ -118,8 +126,8 @@ export default function TermsPage() {
             </HStack>
 
             <CheckboxInput
-              label="I accept these DRAFT as-is Terms to continue to Get AG"
-              description="Paul CONFIRMED: MIT · no default telemetry · as-is absolve. Clickwrap is Terms accept only — not a telemetry or anonymous-improve trade. Unchecked by default. Production ToS NOT until licensed attorney."
+              label="I install of my own free will, accept the risk, and agree these DRAFT as-is Terms to continue to Get AG"
+              description="Paul LOCK: Apache 2.0 · own free will · accept risk · as-is. No default telemetry. Not an anonymous-improve or telemetry trade. Unchecked by default. Production ToS NOT until licensed attorney."
               value={accepted}
               isRequired
               onChange={(checked) => setAccepted(checked)}
@@ -144,7 +152,8 @@ export default function TermsPage() {
             </HStack>
             {!accepted ? (
               <Text type="supporting" color="secondary">
-                Accept as-is Terms before download.
+                Accept install clickwrap (free will · risk · as-is) before
+                download.
               </Text>
             ) : null}
           </VStack>
