@@ -92,6 +92,7 @@ const DUST_NODES = buildDustField(72);
 const NODES: NodeDef[] = [...HUB_NODES, ...DUST_NODES];
 
 const HUB_EDGES: Array<[string, string]> = [
+  // Hub ↔ role/code spokes only — do NOT duplicate the process loop path.
   ['research', 'lead'],
   ['research', 'p01'],
   ['research', 'p08'],
@@ -126,12 +127,6 @@ const HUB_EDGES: Array<[string, string]> = [
   ['design', 'build'],
   ['build', 'next'],
   ['next', 'lead'],
-  ['research', 'brief'],
-  ['brief', 'stills'],
-  ['stills', 'challenge'],
-  ['challenge', 'ship'],
-  ['ship', 'recap'],
-  ['recap', 'research'],
 ];
 
 /**
@@ -234,7 +229,11 @@ function makeLabelTexture(text: string, emphasis: boolean): THREE.CanvasTexture 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.needsUpdate = true;
-  texture.premultiplyAlpha = true;
+  // Premultiply OFF — avoids soft double-composite “ghost” glyphs on sprites.
+  texture.premultiplyAlpha = false;
+  texture.generateMipmaps = false;
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
   return texture;
 }
 
@@ -470,13 +469,9 @@ export function ProcessInstrumentGraph({
           height >= width * 0.95 ||
           (typeof window !== 'undefined' && window.innerWidth <= 900);
         const dprCap = portrait ? 1.5 : 2;
-        const tubeSegs = portrait ? 64 : 96;
-        const tubeRadial = portrait ? 5 : 6;
-        const rainCount = portrait ? 24 : 40;
-        const starCount = portrait ? 520 : 980;
-        /** Active loop stroke — SoT thin wire (kill #10 fat glow ribbon). */
-        const strokeRadius = portrait ? 0.0065 : 0.0075;
-        const washRadius = strokeRadius * 0.38;
+        const rainCount = portrait ? 20 : 32;
+        const starCount = portrait ? 900 : 1600;
+        const fieldPointCount = portrait ? 140 : 220;
 
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(VOID, 0.028);
@@ -533,9 +528,9 @@ export function ProcessInstrumentGraph({
           const s = ((i * 1103515245 + 12345) >>> 0) / 0xffffffff;
           const t = ((i * 214013 + 2531011) >>> 0) / 0xffffffff;
           const u = ((i * 1664525 + 1013904223) >>> 0) / 0xffffffff;
-          starPositions[i * 3] = (s - 0.5) * 14;
-          starPositions[i * 3 + 1] = (t - 0.5) * 10;
-          starPositions[i * 3 + 2] = (u - 0.5) * 12 - 1.5;
+          starPositions[i * 3] = (s - 0.5) * 16;
+          starPositions[i * 3 + 1] = (t - 0.5) * 12;
+          starPositions[i * 3 + 2] = (u - 0.5) * 14 - 2.2;
         }
         const starGeo = trackGeo(new THREE.BufferGeometry());
         starGeo.setAttribute(
@@ -544,18 +539,45 @@ export function ProcessInstrumentGraph({
         );
         const starMat = trackMat(
           new THREE.PointsMaterial({
-            color: 0x9aa89e,
-            size: portrait ? 0.018 : 0.022,
+            color: 0x8f9c94,
+            size: portrait ? 0.012 : 0.014,
             sizeAttenuation: true,
             transparent: true,
-            opacity: 0.22,
+            opacity: 0.28,
             depthWrite: false,
             fog: true,
           }),
         );
         const stars = new THREE.Points(starGeo, starMat);
-        stars.position.z = -0.4;
+        stars.position.z = -0.6;
         root.add(stars);
+
+        // Dense Obsidian field points (filled) — universe-of-stars node density.
+        const fieldPositions = new Float32Array(fieldPointCount * 3);
+        for (let i = 0; i < fieldPointCount; i += 1) {
+          const s = ((i * 2654435761 + 97) >>> 0) / 0xffffffff;
+          const t = ((i * 1597334677 + 13) >>> 0) / 0xffffffff;
+          const u = ((i * 2246822519 + 41) >>> 0) / 0xffffffff;
+          fieldPositions[i * 3] = (s - 0.5) * 7.4;
+          fieldPositions[i * 3 + 1] = (t - 0.5) * 5.6;
+          fieldPositions[i * 3 + 2] = (u - 0.5) * 5.8;
+        }
+        const fieldGeo = trackGeo(new THREE.BufferGeometry());
+        fieldGeo.setAttribute(
+          'position',
+          new THREE.BufferAttribute(fieldPositions, 3),
+        );
+        const fieldMat = trackMat(
+          new THREE.PointsMaterial({
+            color: 0xb0bbb4,
+            size: portrait ? 0.028 : 0.032,
+            sizeAttenuation: true,
+            transparent: true,
+            opacity: 0.42,
+            depthWrite: false,
+          }),
+        );
+        root.add(new THREE.Points(fieldGeo, fieldMat));
 
         // Atmosphere rain codes (≤10% gray).
         const rain = new THREE.Group();
@@ -585,45 +607,39 @@ export function ProcessInstrumentGraph({
         const nodeMap = new Map<string, THREE.Vector3>();
         const labelSprites = new Map<string, THREE.Sprite>();
         const depthNodes: DepthNode[] = [];
-        const sharedSphere = trackGeo(new THREE.SphereGeometry(1, 10, 10));
-        // Quiet hollow SoT ring for loop hubs (not filled glow bead).
-        const sharedRing = trackGeo(new THREE.TorusGeometry(1, 0.14, 6, 28));
+        const sharedSphere = trackGeo(new THREE.SphereGeometry(1, 12, 12));
+        // Quiet hollow SoT ring (RingGeometry billboard) — not a filled glow bead.
+        const sharedRing = trackGeo(new THREE.RingGeometry(0.72, 1, 28));
 
         for (const node of NODES) {
           const pos = new THREE.Vector3(...node.position);
           nodeMap.set(node.id, pos);
 
+          // Dust density lives in Points field — skip per-dust mesh blobs.
+          if (node.kind === 'dust') continue;
+
           const isLoop = node.kind === 'loop';
           const color =
             node.kind === 'loop'
-              ? 0xe6e8e2
+              ? 0xe8eae4
               : node.kind === 'context'
                 ? 0x7a867e
-                : node.kind === 'code'
-                  ? SAGE_DIM
-                  : SAGE_DUST;
+                : SAGE_DIM;
           const opacity =
-            node.kind === 'loop'
-              ? 0.9
-              : node.kind === 'context'
-                ? 0.58
-                : node.kind === 'code'
-                  ? 0.38
-                  : 0.2;
+            node.kind === 'loop' ? 0.92 : node.kind === 'context' ? 0.55 : 0.4;
 
           const mat = trackMat(
             new THREE.MeshBasicMaterial({
               color,
               transparent: true,
               opacity,
-              depthWrite: node.kind !== 'dust',
-              wireframe: false,
+              depthWrite: true,
+              side: isLoop ? THREE.DoubleSide : THREE.FrontSide,
             }),
           );
 
           let mesh: THREE.Object3D;
           if (isLoop) {
-            // Hollow quiet ring — SoT instrument hub (Apple-clean, not a bead).
             const ring = new THREE.Mesh(sharedRing, mat);
             ring.scale.setScalar(node.radius);
             ring.position.copy(pos);
@@ -631,13 +647,13 @@ export function ProcessInstrumentGraph({
           } else {
             const body = new THREE.Mesh(sharedSphere, mat);
             body.position.copy(pos);
-            body.scale.setScalar(node.radius);
+            body.scale.setScalar(node.radius * (node.kind === 'code' ? 0.85 : 1));
             mesh = body;
           }
           root.add(mesh);
           depthNodes.push({
             mesh,
-            baseRadius: node.radius,
+            baseRadius: isLoop ? node.radius : node.radius * (node.kind === 'code' ? 0.85 : 1),
             kind: node.kind,
             id: node.id,
             mat,
@@ -646,7 +662,7 @@ export function ProcessInstrumentGraph({
           if (node.label) {
             const labelMap = trackTex(makeLabelTexture(node.label, isLoop));
             const aspect = textureAspect(labelMap, isLoop ? 4 : 3.2);
-            const spriteH = isLoop ? 0.2 : node.kind === 'context' ? 0.15 : 0.12;
+            const spriteH = isLoop ? 0.18 : node.kind === 'context' ? 0.14 : 0.11;
             const sprite = new THREE.Sprite(
               trackMat(
                 new THREE.SpriteMaterial({
@@ -655,14 +671,14 @@ export function ProcessInstrumentGraph({
                   depthTest: true,
                   depthWrite: false,
                   fog: false,
-                  alphaTest: 0.08,
-                  opacity: isLoop ? 1 : node.kind === 'context' ? 0.58 : 0.36,
+                  alphaTest: 0.4,
+                  opacity: isLoop ? 1 : node.kind === 'context' ? 0.55 : 0.36,
                 }),
               ),
             );
             sprite.position
               .copy(pos)
-              .add(new THREE.Vector3(0, isLoop ? 0.17 : 0.1, 0.02));
+              .add(new THREE.Vector3(0, isLoop ? 0.15 : 0.09, 0.02));
             sprite.scale.set(spriteH * aspect, spriteH, 1);
             sprite.renderOrder = isLoop ? 3 : 1;
             root.add(sprite);
@@ -689,7 +705,7 @@ export function ProcessInstrumentGraph({
           new THREE.LineBasicMaterial({
             color: SAGE_DIM,
             transparent: true,
-            opacity: 0.07,
+            opacity: 0.055,
           }),
         );
         root.add(new THREE.LineSegments(spokeGeo, spokeMat));
@@ -708,13 +724,10 @@ export function ProcessInstrumentGraph({
           haze: number;
         };
         const pulseGeo = trackGeo(
-          new THREE.CylinderGeometry(1, 1, 1, 5, 1, true),
+          new THREE.CylinderGeometry(1, 1, 1, 4, 1, true),
         );
         const strokePulses: StrokePulse[] = [];
-        const pulseCount = Math.min(
-          spokeSegs.length,
-          portrait ? 36 : 56,
-        );
+        const pulseCount = Math.min(spokeSegs.length, portrait ? 42 : 64);
         for (let i = 0; i < pulseCount; i += 1) {
           const mat = trackMat(
             new THREE.MeshBasicMaterial({
@@ -723,23 +736,21 @@ export function ProcessInstrumentGraph({
               opacity: 0,
               depthWrite: false,
               depthTest: true,
-              blending: THREE.AdditiveBlending,
             }),
           );
           const mesh = new THREE.Mesh(pulseGeo, mat);
           root.add(mesh);
-          // Staggered phases + irregular speeds = different intervals (Paul LOCK).
           strokePulses.push({
             mesh,
             mat,
             phase: (i * 0.173 + (i % 9) * 0.041) % 1,
-            speed: 0.045 + (i % 11) * 0.011 + (i % 3) * 0.007,
+            speed: 0.04 + (i % 11) * 0.01 + (i % 3) * 0.006,
             kind: 'spoke',
             segIndex: i % spokeSegs.length,
-            haze: 0.55 + (i % 5) * 0.08,
+            haze: 0.5 + (i % 5) * 0.07,
           });
         }
-        for (let i = 0; i < 4; i += 1) {
+        for (let i = 0; i < 5; i += 1) {
           const mat = trackMat(
             new THREE.MeshBasicMaterial({
               color: WASH,
@@ -747,7 +758,6 @@ export function ProcessInstrumentGraph({
               opacity: 0,
               depthWrite: false,
               depthTest: true,
-              blending: THREE.AdditiveBlending,
             }),
           );
           const mesh = new THREE.Mesh(pulseGeo, mat);
@@ -755,11 +765,11 @@ export function ProcessInstrumentGraph({
           strokePulses.push({
             mesh,
             mat,
-            phase: i / 4 + 0.07,
-            speed: 0.055 + i * 0.013,
+            phase: i / 5 + 0.05,
+            speed: 0.05 + i * 0.011,
             kind: 'loop',
             segIndex: i,
-            haze: 0.7,
+            haze: 0.65,
           });
         }
         const pulseFrom = new THREE.Vector3();
@@ -768,94 +778,60 @@ export function ProcessInstrumentGraph({
         const pulseDir = new THREE.Vector3();
         const yAxis = new THREE.Vector3(0, 1, 0);
 
-        // Thin closed process stroke + faint in-stroke wash (not fat glow ribbon).
+        // Process loop = razor-thin polygonal LineSegments (SoT wire — kill fat tube).
         const loopPts: THREE.Vector3[] = [];
+        const loopLinePos: number[] = [];
         for (const id of LOOP_ORDER) {
           const p = nodeMap.get(id);
           if (p) loopPts.push(p.clone());
+        }
+        for (let i = 0; i < loopPts.length; i += 1) {
+          const a = loopPts[i];
+          const b = loopPts[(i + 1) % loopPts.length];
+          loopLinePos.push(a.x, a.y, a.z, b.x, b.y, b.z);
         }
         const closedLoop = new THREE.CatmullRomCurve3(
           loopPts,
           true,
           'catmullrom',
-          0.1,
+          0.05,
+        );
+        const loopLineGeo = trackGeo(new THREE.BufferGeometry());
+        loopLineGeo.setAttribute(
+          'position',
+          new THREE.Float32BufferAttribute(loopLinePos, 3),
         );
         const strokeMat = trackMat(
-          new THREE.MeshBasicMaterial({
-            color: SAGE,
+          new THREE.LineBasicMaterial({
+            color: 0xc5cec7,
             transparent: true,
-            opacity: 0.82,
-            depthWrite: false,
+            opacity: 0.9,
           }),
         );
-        const washMat = trackMat(
-          new THREE.MeshBasicMaterial({
-            color: WASH,
-            transparent: true,
-            opacity: 0.1,
-            depthWrite: false,
-          }),
-        );
-        root.add(
-          new THREE.Mesh(
-            trackGeo(
-              new THREE.TubeGeometry(
-                closedLoop,
-                tubeSegs,
-                strokeRadius,
-                tubeRadial,
-                true,
-              ),
-            ),
-            strokeMat,
-          ),
-        );
-        root.add(
-          new THREE.Mesh(
-            trackGeo(
-              new THREE.TubeGeometry(
-                closedLoop,
-                tubeSegs,
-                washRadius,
-                Math.max(4, tubeRadial - 1),
-                true,
-              ),
-            ),
-            washMat,
-          ),
-        );
+        root.add(new THREE.LineSegments(loopLineGeo, strokeMat));
 
-        const neighborMats: THREE.MeshBasicMaterial[] = [];
+        // Neighbor accents: thin line luminance only (no fat tube segments).
+        const neighborMats: THREE.LineBasicMaterial[] = [];
         for (let i = 0; i < LOOP_ORDER.length; i += 1) {
           const a = nodeMap.get(LOOP_ORDER[i]);
           const b = nodeMap.get(LOOP_ORDER[(i + 1) % LOOP_ORDER.length]);
           if (!a || !b) continue;
-          const p0 = a.clone().lerp(b, 0.22);
-          const p1 = a.clone().lerp(b, 0.5);
-          p1.z += 0.1;
-          const p2 = a.clone().lerp(b, 0.78);
+          const geo = trackGeo(new THREE.BufferGeometry());
+          geo.setAttribute(
+            'position',
+            new THREE.Float32BufferAttribute(
+              [a.x, a.y, a.z, b.x, b.y, b.z],
+              3,
+            ),
+          );
           const mat = trackMat(
-            new THREE.MeshBasicMaterial({
+            new THREE.LineBasicMaterial({
               color: WASH,
               transparent: true,
               opacity: 0,
-              depthWrite: false,
             }),
           );
-          root.add(
-            new THREE.Mesh(
-              trackGeo(
-                new THREE.TubeGeometry(
-                  new THREE.CatmullRomCurve3([p0, p1, p2]),
-                  12,
-                  strokeRadius * 0.8,
-                  5,
-                  false,
-                ),
-              ),
-              mat,
-            ),
-          );
+          root.add(new THREE.LineSegments(geo, mat));
           neighborMats.push(mat);
         }
 
@@ -940,9 +916,9 @@ export function ProcessInstrumentGraph({
               const dist = Math.max(camera.position.distanceTo(worldPos), 0.8);
               const persp = THREE.MathUtils.clamp(refDist / dist, 0.55, 1.35);
               dn.mesh.scale.setScalar(dn.baseRadius * persp);
-              // Keep hollow rings readable toward camera (quiet, not spinning spectacle).
+              // Billboard hollow rings toward camera (quiet SoT hubs).
               if (dn.kind === 'loop') {
-                dn.mesh.lookAt(camera.position);
+                dn.mesh.quaternion.copy(camera.quaternion);
               }
             }
 
@@ -959,12 +935,12 @@ export function ProcessInstrumentGraph({
                   seg.a,
                   seg.b,
                   u,
-                  hover ? 0.0026 : 0.0022,
-                  hover ? 0.09 : 0.12,
-                  0.16,
+                  hover ? 0.0018 : 0.0015,
+                  hover ? 0.07 : 0.09,
+                  0.18,
                 );
               } else {
-                const half = 0.04;
+                const half = 0.035;
                 const u0 = (u - half + 1) % 1;
                 const u1 = (u + half) % 1;
                 closedLoop.getPointAt(u0, pulseFrom);
@@ -980,24 +956,20 @@ export function ProcessInstrumentGraph({
                 }
                 const dashLen = Math.max(
                   pulseFrom.distanceTo(pulseTo),
-                  0.1,
+                  0.08,
                 );
-                pulse.mesh.scale.set(
-                  washRadius * 0.9,
-                  dashLen,
-                  washRadius * 0.9,
-                );
+                // Hairline wash dash — stays inside thin stroke, never a fat band.
+                pulse.mesh.scale.set(0.0014, dashLen, 0.0014);
                 const breath =
-                  0.4 + 0.6 * Math.sin(u * Math.PI * 2 + pulse.phase * 4);
+                  0.35 + 0.65 * Math.sin(u * Math.PI * 2 + pulse.phase * 4);
                 pulse.mat.opacity =
-                  (hover ? 0.1 : 0.14) * pulse.haze * breath * 0.7;
+                  (hover ? 0.08 : 0.11) * pulse.haze * breath * 0.65;
               }
             }
 
             if (hover && chapter) {
-              strokeMat.opacity = 0.4;
-              washMat.opacity = 0.08;
-              spokeMat.opacity = 0.12;
+              strokeMat.opacity = 0.45;
+              spokeMat.opacity = 0.1;
               for (let i = 0; i < LOOP_ORDER.length; i += 1) {
                 const id = LOOP_ORDER[i];
                 const isNeighbor =
@@ -1005,12 +977,11 @@ export function ProcessInstrumentGraph({
                   LOOP_ORDER[(i + LOOP_ORDER.length - 1) % LOOP_ORDER.length] ===
                     chapter ||
                   LOOP_ORDER[(i + 1) % LOOP_ORDER.length] === chapter;
-                neighborMats[i].opacity = isNeighbor ? 0.28 : 0;
+                neighborMats[i].opacity = isNeighbor ? 0.35 : 0;
               }
               for (const dn of depthNodes) {
                 const near =
                   dn.id === chapter ||
-                  dn.kind === 'dust' ||
                   CONTEXT_EDGES.some(
                     ([a, b]) =>
                       (a === chapter && b === dn.id) ||
@@ -1019,29 +990,22 @@ export function ProcessInstrumentGraph({
                 dn.mat.opacity = near
                   ? dn.kind === 'loop'
                     ? 0.95
-                    : dn.kind === 'dust'
-                      ? 0.14
-                      : 0.65
-                  : dn.kind === 'dust'
-                    ? 0.04
-                    : 0.14;
+                    : 0.65
+                  : 0.14;
               }
             } else {
-              strokeMat.opacity = 0.82;
-              washMat.opacity = 0.09 + Math.sin(t * 0.45) * 0.025;
-              spokeMat.opacity = 0.07;
+              strokeMat.opacity = 0.9;
+              spokeMat.opacity = 0.055;
               for (const mat of neighborMats) {
                 mat.opacity = 0;
               }
               for (const dn of depthNodes) {
                 dn.mat.opacity =
                   dn.kind === 'loop'
-                    ? 0.9
+                    ? 0.92
                     : dn.kind === 'context'
-                      ? 0.58
-                      : dn.kind === 'code'
-                        ? 0.38
-                        : 0.2;
+                      ? 0.55
+                      : 0.4;
               }
             }
 
@@ -1051,7 +1015,7 @@ export function ProcessInstrumentGraph({
               labelMat.opacity = twitch
                 ? 0.7 + Math.sin(t * 10) * 0.3
                 : 1;
-              const baseH = 0.2;
+              const baseH = 0.18;
               const aspect = textureAspect(labelMat.map, 3.2);
               const pulse = twitch ? 1 + Math.sin(t * 10) * 0.04 : 1;
               shipLabel.scale.set(baseH * aspect * pulse, baseH * pulse, 1);
