@@ -272,6 +272,7 @@ export function ProcessInstrumentGraph({
       }
       if (canvas) {
         canvas.removeEventListener('webglcontextlost', onContextLost);
+        canvas.removeEventListener('webglcontextrestored', onContextRestored);
       }
       if (renderer) {
         // Avoid forceContextLoss on soft remounts — Chrome mobile GPU "Aw Snap" / error 9.
@@ -334,7 +335,13 @@ export function ProcessInstrumentGraph({
       }
       alive = false;
       window.removeEventListener('resize', onResize);
-      // Soft remount path — no forceContextLoss (mobile Chrome renderer stick).
+      try {
+        // Next remount uses lite GPU profile — Cos-box @390 Aw Snap / error 9.
+        window.sessionStorage.setItem('ag-instrument-lite', '1');
+      } catch {
+        // ignore
+      }
+      // Soft remount path — never forceContextLoss (Chrome mobile renderer stick).
       tearDownGl(false);
       // Transient empty only — auto-retry effect remounts true-3D.
       setPaintState('fallback');
@@ -343,6 +350,17 @@ export function ProcessInstrumentGraph({
     const onContextLost = (event: Event) => {
       event.preventDefault();
       failSoft(new Error('webglcontextlost'));
+    };
+
+    const onContextRestored = () => {
+      // Prefer remount over resume — restored contexts are flaky on mobile Chrome.
+      if (!alive) return;
+      try {
+        window.sessionStorage.setItem('ag-instrument-lite', '1');
+      } catch {
+        // ignore
+      }
+      failSoft(new Error('webglcontextrestored'));
     };
 
     let resizeCamera = (_w: number, _h: number) => {
@@ -424,11 +442,21 @@ export function ProcessInstrumentGraph({
         const portrait =
           height >= width * 0.95 ||
           (typeof window !== 'undefined' && window.innerWidth <= 900);
-        const dprCap = portrait ? 1.25 : 2;
-        const rainCount = portrait ? 10 : 22;
-        // Dense universe — portrait favors Points over heavy Ring counts (mobile GPU stick).
-        const starCount = portrait ? 4200 : 7200;
-        const fieldPointCount = portrait ? 900 : 1400;
+        let preferLite = false;
+        try {
+          preferLite = window.sessionStorage.getItem('ag-instrument-lite') === '1';
+        } catch {
+          preferLite = false;
+        }
+        // Cos-box @390 blank/Aw Snap — lite GPU profile sticks 3D without error 9.
+        const narrowMobile =
+          typeof window !== 'undefined' && window.innerWidth <= 430;
+        const useLite = Boolean(portrait && (preferLite || narrowMobile));
+        const dprCap = useLite ? 1 : portrait ? 1.25 : 2;
+        const rainCount = useLite ? 0 : portrait ? 8 : 22;
+        // Dense universe — lite keeps readable Points, fewer heavy rings.
+        const starCount = useLite ? 2400 : portrait ? 4200 : 7200;
+        const fieldPointCount = useLite ? 560 : portrait ? 900 : 1400;
 
         // Scrub any leftover canvas/label DOM before paint (StrictMode / remount ghosts).
         host
@@ -437,7 +465,7 @@ export function ProcessInstrumentGraph({
 
         const scene = new THREE.Scene();
         // Soft fog keeps depth readable without swallowing the particle field.
-        scene.fog = new THREE.FogExp2(VOID, 0.01);
+        scene.fog = new THREE.FogExp2(VOID, useLite ? 0.014 : 0.01);
 
         const camera = new THREE.PerspectiveCamera(
           portrait ? 40 : 36,
@@ -467,6 +495,7 @@ export function ProcessInstrumentGraph({
         canvas.style.height = '100%';
         host.appendChild(canvas);
         canvas.addEventListener('webglcontextlost', onContextLost, false);
+        canvas.addEventListener('webglcontextrestored', onContextRestored, false);
 
         renderer = new THREE.WebGLRenderer({
           canvas,
@@ -666,7 +695,10 @@ export function ProcessInstrumentGraph({
               'transform:translate(-50%,-120%)',
               'white-space:nowrap',
               'pointer-events:none',
-              'contain:layout style',
+              'contain:layout style paint',
+              'isolation:isolate',
+              '-webkit-font-smoothing:antialiased',
+              'text-rendering:geometricPrecision',
               `font:${
                 emphasis
                   ? portrait
@@ -674,10 +706,14 @@ export function ProcessInstrumentGraph({
                     : '500 12px'
                   : '400 10px'
               } Geist, ui-sans-serif, system-ui, sans-serif`,
-              `color:${emphasis ? 'rgba(242,241,236,0.94)' : 'rgba(138,154,142,0.45)'}`,
+              // Binary ink — no translucent text that trails as ghost doubles.
+              `color:${emphasis ? 'rgba(242,241,236,1)' : 'rgba(138,154,142,0.55)'}`,
               'letter-spacing:0.01em',
               'text-shadow:none',
+              'filter:none',
               'opacity:0',
+              'visibility:hidden',
+              'will-change:auto',
               'backface-visibility:hidden',
             ].join(';');
             labelLayer.appendChild(el);
@@ -706,8 +742,8 @@ export function ProcessInstrumentGraph({
         }
 
         // Extra dense subordinate hollow rings (SoT universe density — quiet, not beads).
-        // Portrait: fewer rings, denser Points carry the star field (GPU stick @390).
-        const extraRingCount = portrait ? 140 : 520;
+        // Portrait/lite: fewer rings, denser Points carry the star field (GPU stick @390).
+        const extraRingCount = useLite ? 60 : portrait ? 140 : 520;
         for (let i = 0; i < extraRingCount; i += 1) {
           const s = ((i * 2654435761 + 97) >>> 0) / 0xffffffff;
           const t = ((i * 1597334677 + 13) >>> 0) / 0xffffffff;
@@ -781,8 +817,11 @@ export function ProcessInstrumentGraph({
           new THREE.CylinderGeometry(1, 1, 1, 6, 1, true),
         );
         const strokePulses: StrokePulse[] = [];
-        // Many riders at clearly different intervals.
-        const pulseCount = Math.min(spokeSegs.length, portrait ? 56 : 96);
+        // Many riders at clearly different intervals — wait-frame readable.
+        const pulseCount = Math.min(
+          spokeSegs.length,
+          useLite ? 28 : portrait ? 48 : 96,
+        );
         for (let i = 0; i < pulseCount; i += 1) {
           const mat = trackMat(
             new THREE.MeshBasicMaterial({
@@ -806,7 +845,7 @@ export function ProcessInstrumentGraph({
             haze: 0.45 + (i % 7) * 0.07,
           });
         }
-        for (let i = 0; i < Math.min(spokeSegs.length, portrait ? 24 : 36); i += 1) {
+        for (let i = 0; i < Math.min(spokeSegs.length, useLite ? 12 : portrait ? 24 : 36); i += 1) {
           const mat = trackMat(
             new THREE.MeshBasicMaterial({
               color: WASH,
@@ -829,7 +868,7 @@ export function ProcessInstrumentGraph({
             haze: 0.38 + (i % 4) * 0.06,
           });
         }
-        for (let i = 0; i < 10; i += 1) {
+        for (let i = 0; i < (useLite ? 6 : 10); i += 1) {
           const mat = trackMat(
             new THREE.MeshBasicMaterial({
               color: WASH,
@@ -845,11 +884,11 @@ export function ProcessInstrumentGraph({
           strokePulses.push({
             mesh,
             mat,
-            phase: i / 10 + 0.02,
-            speed: 0.04 + i * 0.01 + (i % 2) * 0.016,
+            phase: i / (useLite ? 6 : 10) + 0.02,
+            speed: 0.048 + i * 0.012 + (i % 2) * 0.018,
             kind: 'loop',
             segIndex: i,
-            haze: 0.55 + (i % 3) * 0.08,
+            haze: 0.7 + (i % 3) * 0.1,
           });
         }
         const pulseFrom = new THREE.Vector3();
@@ -920,6 +959,7 @@ export function ProcessInstrumentGraph({
         const camTarget = landCam.clone();
         const worldPos = new THREE.Vector3();
         const refDist = portrait ? 6.9 : 5.2;
+        let frameN = 0;
         window.addEventListener('resize', onResize);
         if (typeof ResizeObserver !== 'undefined') {
           resizeObserver = new ResizeObserver(() => onResize());
@@ -964,18 +1004,28 @@ export function ProcessInstrumentGraph({
           if (!alive || !renderer) return;
           raf = requestAnimationFrame(animate);
           try {
+            frameN += 1;
             const t = clock.getElapsedTime();
             const {mode: m, activeChapter: chapter, shipTwitch: twitch} =
               stateRef.current;
 
-            // Continuous slight drift — living breathing ecosystem (calm enough for crisp labels).
-            root.rotation.y = Math.sin(t * 0.08) * 0.14 + 0.55;
-            root.rotation.x = Math.sin(t * 0.06) * 0.1 + 0.28;
-            root.rotation.z = Math.cos(t * 0.05) * 0.04;
-            root.position.y = Math.sin(t * 0.11) * 0.06;
-            root.position.x = Math.cos(t * 0.08) * 0.05;
-            stars.rotation.y = t * 0.01;
-            stars.rotation.x = Math.sin(t * 0.03) * 0.015;
+            // Land: near-static pose — kills compositor smear ghosts Cos saw on live.
+            // Hover/inspect: mild living drift only.
+            if (m === 'land') {
+              root.rotation.y = 0.55 + Math.sin(t * 0.035) * 0.02;
+              root.rotation.x = 0.28 + Math.sin(t * 0.028) * 0.012;
+              root.rotation.z = Math.cos(t * 0.022) * 0.008;
+              root.position.y = Math.sin(t * 0.04) * 0.012;
+              root.position.x = Math.cos(t * 0.032) * 0.01;
+            } else {
+              root.rotation.y = Math.sin(t * 0.08) * 0.14 + 0.55;
+              root.rotation.x = Math.sin(t * 0.06) * 0.1 + 0.28;
+              root.rotation.z = Math.cos(t * 0.05) * 0.04;
+              root.position.y = Math.sin(t * 0.11) * 0.06;
+              root.position.x = Math.cos(t * 0.08) * 0.05;
+            }
+            stars.rotation.y = t * 0.008;
+            stars.rotation.x = Math.sin(t * 0.025) * 0.012;
             // Keep particle universe clearly readable (quiet breath, not dim washout).
             starMat.opacity = 0.5 + Math.sin(t * 0.25) * 0.05;
 
@@ -994,6 +1044,8 @@ export function ProcessInstrumentGraph({
             }
 
             for (const dn of depthNodes) {
+              // Lite: skip dust billboards every frame (GPU stick).
+              if (useLite && dn.kind === 'dust' && (frameN & 1) === 0) continue;
               dn.mesh.getWorldPosition(worldPos);
               const dist = Math.max(camera.position.distanceTo(worldPos), 0.8);
               const persp = THREE.MathUtils.clamp(refDist / dist, 0.55, 1.35);
@@ -1015,10 +1067,10 @@ export function ProcessInstrumentGraph({
                   seg.a,
                   seg.b,
                   u,
-                  hover ? 0.009 : 0.0075,
-                  // Motion-readable hazy wash — Cos wait-frame proof.
-                  hover ? 0.28 : 0.4,
-                  0.26,
+                  hover ? 0.01 : 0.0085,
+                  // Wait-frame readable hazy wash across many spokes.
+                  hover ? 0.32 : 0.48,
+                  0.28,
                 );
               } else {
                 const half = 0.035;
@@ -1039,11 +1091,12 @@ export function ProcessInstrumentGraph({
                   pulseFrom.distanceTo(pulseTo),
                   0.08,
                 );
-                pulse.mesh.scale.set(0.0075, dashLen, 0.0075);
+                // Wait-frame readable soft wash — still not a fat band.
+                pulse.mesh.scale.set(0.01, dashLen, 0.01);
                 const breath =
-                  0.35 + 0.65 * Math.sin(u * Math.PI * 2 + pulse.phase * 4);
+                  0.4 + 0.6 * Math.sin(u * Math.PI * 2 + pulse.phase * 4);
                 pulse.mat.opacity =
-                  (hover ? 0.22 : 0.36) * pulse.haze * breath * 0.8;
+                  (hover ? 0.28 : 0.48) * pulse.haze * breath;
               }
             }
 
@@ -1096,52 +1149,60 @@ export function ProcessInstrumentGraph({
               }
             }
 
-            // Project HTML labels — integer left/top only (kills transform-smear ghosts).
+            // Project HTML labels — throttled integer left/top + binary visibility
+            // (Cos live FAIL: Brief/Challenge/Recap ghost doubles / motion smear).
             root.updateMatrixWorld(true);
             const viewW = renderer.domElement.clientWidth;
             const viewH = renderer.domElement.clientHeight;
-            for (const label of htmlLabels) {
-              worldPos.copy(label.local);
-              root.localToWorld(worldPos);
-              worldPos.project(camera);
-              const visible =
-                worldPos.z < 1 &&
-                worldPos.x > -1.2 &&
-                worldPos.x < 1.2 &&
-                worldPos.y > -1.2 &&
-                worldPos.y < 1.2;
-              if (!visible) {
-                label.el.style.opacity = '0';
-                continue;
+            const labelTick = (Math.floor(t * 60) & 1) === 0; // ~30Hz label pose
+            if (labelTick || m !== 'land') {
+              for (const label of htmlLabels) {
+                worldPos.copy(label.local);
+                root.localToWorld(worldPos);
+                worldPos.project(camera);
+                const visible =
+                  worldPos.z < 1 &&
+                  worldPos.x > -1.05 &&
+                  worldPos.x < 1.05 &&
+                  worldPos.y > -1.05 &&
+                  worldPos.y < 1.05;
+                if (!visible) {
+                  label.el.style.visibility = 'hidden';
+                  label.el.style.opacity = '0';
+                  continue;
+                }
+                const x = (worldPos.x * 0.5 + 0.5) * viewW;
+                const y = (-worldPos.y * 0.5 + 0.5) * viewH;
+                // Hard XY clamp — keep full "Stills" / "Research" inside safe area.
+                const halfW =
+                  label.id === 'stills' || label.id === 'research'
+                    ? portrait
+                      ? 42
+                      : 36
+                    : label.emphasis
+                      ? 30
+                      : 22;
+                const padY = label.emphasis ? 22 : 14;
+                const cx = Math.round(
+                  Math.min(Math.max(x, halfW), viewW - halfW),
+                );
+                const cy = Math.round(
+                  Math.min(Math.max(y, padY), viewH - padY),
+                );
+                const prevX = Number(label.el.dataset.x || -9999);
+                const prevY = Number(label.el.dataset.y || -9999);
+                if (Math.abs(prevX - cx) >= 1 || Math.abs(prevY - cy) >= 1) {
+                  label.el.dataset.x = String(cx);
+                  label.el.dataset.y = String(cy);
+                  label.el.style.left = `${cx}px`;
+                  label.el.style.top = `${cy}px`;
+                }
+                label.el.style.transform = 'translate(-50%,-120%)';
+                // Binary show — never fractional opacity trails.
+                label.el.style.visibility = 'visible';
+                label.el.style.opacity =
+                  twitch && label.id === 'ship' ? '1' : label.emphasis ? '1' : '0.55';
               }
-              const x = (worldPos.x * 0.5 + 0.5) * viewW;
-              const y = (-worldPos.y * 0.5 + 0.5) * viewH;
-              // Hard XY clamp — parent stage clips overflow; keep full "Stills".
-              const halfW =
-                label.id === 'stills'
-                  ? portrait
-                    ? 40
-                    : 34
-                  : label.emphasis
-                    ? 28
-                    : 22;
-              const padY = label.emphasis ? 20 : 14;
-              const cx = Math.round(Math.min(Math.max(x, halfW), viewW - halfW));
-              const cy = Math.round(Math.min(Math.max(y, padY), viewH - padY));
-              const twitchBoost =
-                twitch && label.id === 'ship'
-                  ? 0.75 + Math.sin(t * 10) * 0.25
-                  : label.emphasis
-                    ? 1
-                    : 0.55;
-              label.el.style.opacity = String(twitchBoost);
-              // left/top — transform stays a fixed centering offset (no motion smear doubles).
-              label.el.style.left = `${cx}px`;
-              label.el.style.top = `${cy}px`;
-              label.el.style.transform =
-                twitch && label.id === 'ship'
-                  ? `translate(-50%,-120%) scale(${1 + Math.sin(t * 10) * 0.04})`
-                  : 'translate(-50%,-120%)';
             }
 
             rain.rotation.y = t * 0.016;
@@ -1162,6 +1223,13 @@ export function ProcessInstrumentGraph({
         renderer.render(scene, camera);
         setPaintState('live');
         retryCountRef.current = 0;
+        if (!useLite) {
+          try {
+            window.sessionStorage.removeItem('ag-instrument-lite');
+          } catch {
+            // ignore
+          }
+        }
         animate();
       } catch (err) {
         failSoft(err);

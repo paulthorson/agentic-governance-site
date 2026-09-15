@@ -81,6 +81,11 @@
 
 .ag-instrument-stage {
   min-height: var(--ag-instrument-min-h);
+  overflow: visible;
+}
+
+.ag-instrument-canvas {
+  overflow: visible;
 }
 
 .ag-instrument-canvas canvas {
