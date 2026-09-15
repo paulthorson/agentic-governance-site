@@ -88,7 +88,8 @@ function buildDustField(count: number): NodeDef[] {
   return out;
 }
 
-const DUST_NODES = buildDustField(72);
+// Living ecosystem density — Cos FAIL @ 6537948: not one face ribbon + quiet accents.
+const DUST_NODES = buildDustField(168);
 const NODES: NodeDef[] = [...HUB_NODES, ...DUST_NODES];
 
 const HUB_EDGES: Array<[string, string]> = [
@@ -184,7 +185,7 @@ function buildSpokePairs(
   return pairs;
 }
 
-const CONTEXT_EDGES = buildSpokePairs(NODES, 3);
+const CONTEXT_EDGES = buildSpokePairs(NODES, 5);
 
 const SAGE_DIM = 0x4a554e;
 const WASH = 0xffffff;
@@ -414,12 +415,14 @@ export function ProcessInstrumentGraph({
           height >= width * 0.95 ||
           (typeof window !== 'undefined' && window.innerWidth <= 900);
         const dprCap = portrait ? 1.5 : 2;
-        const rainCount = portrait ? 20 : 32;
-        const starCount = portrait ? 1400 : 1800;
-        const fieldPointCount = portrait ? 220 : 280;
+        const rainCount = portrait ? 14 : 24;
+        // VERY LARGE universe-of-stars / living ecosystem mesh (Cos FAIL @ 6537948).
+        const starCount = portrait ? 3800 : 6200;
+        const fieldPointCount = portrait ? 720 : 1100;
 
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(VOID, 0.028);
+        // Soft fog keeps depth readable without swallowing the particle field.
+        scene.fog = new THREE.FogExp2(VOID, 0.012);
 
         const camera = new THREE.PerspectiveCamera(
           portrait ? 40 : 36,
@@ -473,39 +476,40 @@ export function ProcessInstrumentGraph({
           const s = ((i * 1103515245 + 12345) >>> 0) / 0xffffffff;
           const t = ((i * 214013 + 2531011) >>> 0) / 0xffffffff;
           const u = ((i * 1664525 + 1013904223) >>> 0) / 0xffffffff;
-          starPositions[i * 3] = (s - 0.5) * 16;
-          starPositions[i * 3 + 1] = (t - 0.5) * 12;
-          starPositions[i * 3 + 2] = (u - 0.5) * 14 - 2.2;
+          starPositions[i * 3] = (s - 0.5) * 18;
+          starPositions[i * 3 + 1] = (t - 0.5) * 14;
+          starPositions[i * 3 + 2] = (u - 0.5) * 16 - 2.8;
         }
         const starGeo = trackGeo(new THREE.BufferGeometry());
         starGeo.setAttribute(
           'position',
           new THREE.BufferAttribute(starPositions, 3),
         );
+        // Apple-clean atmosphere — quiet readable depth, not confetti.
         const starMat = trackMat(
           new THREE.PointsMaterial({
-            color: 0x8f9c94,
-            size: portrait ? 0.012 : 0.014,
+            color: 0xc4cec6,
+            size: portrait ? 0.022 : 0.028,
             sizeAttenuation: true,
             transparent: true,
-            opacity: 0.28,
+            opacity: 0.52,
             depthWrite: false,
             fog: true,
           }),
         );
         const stars = new THREE.Points(starGeo, starMat);
-        stars.position.z = -0.6;
+        stars.position.z = -0.85;
         root.add(stars);
 
-        // Dense Obsidian field — quiet star dust ONLY (hollow rings carry node craft).
+        // Mid-field dust layer — fills the void between far stars and hubs.
         const fieldPositions = new Float32Array(fieldPointCount * 3);
         for (let i = 0; i < fieldPointCount; i += 1) {
           const s = ((i * 2654435761 + 97) >>> 0) / 0xffffffff;
           const t = ((i * 1597334677 + 13) >>> 0) / 0xffffffff;
           const u = ((i * 2246822519 + 41) >>> 0) / 0xffffffff;
-          fieldPositions[i * 3] = (s - 0.5) * 7.4;
-          fieldPositions[i * 3 + 1] = (t - 0.5) * 5.6;
-          fieldPositions[i * 3 + 2] = (u - 0.5) * 5.8;
+          fieldPositions[i * 3] = (s - 0.5) * 8.6;
+          fieldPositions[i * 3 + 1] = (t - 0.5) * 6.4;
+          fieldPositions[i * 3 + 2] = (u - 0.5) * 6.8;
         }
         const fieldGeo = trackGeo(new THREE.BufferGeometry());
         fieldGeo.setAttribute(
@@ -514,11 +518,11 @@ export function ProcessInstrumentGraph({
         );
         const fieldMat = trackMat(
           new THREE.PointsMaterial({
-            color: 0x6a736c,
-            size: portrait ? 0.012 : 0.014,
+            color: 0x9aa69c,
+            size: portrait ? 0.016 : 0.019,
             sizeAttenuation: true,
             transparent: true,
-            opacity: 0.2,
+            opacity: 0.4,
             depthWrite: false,
           }),
         );
@@ -561,7 +565,7 @@ export function ProcessInstrumentGraph({
         labelLayer = document.createElement('div');
         labelLayer.setAttribute('data-instrument-labels', 'html');
         labelLayer.style.cssText =
-          'position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2;';
+          'position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:2;';
         host.appendChild(labelLayer);
 
         // Quiet hollow SoT rings — primary + subordinate (NOT filled beads / bare ribbon).
@@ -635,7 +639,14 @@ export function ProcessInstrumentGraph({
               'transform:translate(-50%,-120%)',
               'white-space:nowrap',
               'pointer-events:none',
-              `font:${emphasis ? '500 12px' : '400 10px'} Geist, ui-sans-serif, system-ui, sans-serif`,
+              // Slightly tighter loop type on portrait keeps "Stills" fully in-frame.
+              `font:${
+                emphasis
+                  ? portrait
+                    ? '500 11px'
+                    : '500 12px'
+                  : '400 10px'
+              } Geist, ui-sans-serif, system-ui, sans-serif`,
               `color:${emphasis ? 'rgba(242,241,236,0.94)' : 'rgba(138,154,142,0.45)'}`,
               'letter-spacing:0.01em',
               'text-shadow:none',
@@ -643,19 +654,19 @@ export function ProcessInstrumentGraph({
               'will-change:transform,opacity',
             ].join(';');
             labelLayer.appendChild(el);
-            // Per-hub nudge so Recap/Research etc. don't stack on mobile.
+            // Per-hub nudge — keep Stills fully on-canvas (never clip to "St").
             const nudge: Record<string, [number, number, number]> = {
               research: [-0.12, 0.14, 0.04],
               brief: [0.05, 0.16, 0],
-              stills: [0.12, 0.12, 0.02],
-              challenge: [0.1, -0.02, 0],
+              stills: portrait ? [-0.38, 0.16, 0.06] : [-0.06, 0.14, 0.02],
+              challenge: portrait ? [0.02, -0.02, 0] : [0.1, -0.02, 0],
               ship: [0, -0.14, 0.02],
               recap: [-0.14, 0.02, 0],
               next: [-0.1, 0.08, 0],
-              design: [0.1, 0.06, 0],
+              design: portrait ? [-0.16, 0.06, 0] : [0.1, 0.06, 0],
               product: [0.05, 0.1, 0],
               lead: [-0.05, 0.1, 0],
-              build: [0.08, -0.06, 0],
+              build: portrait ? [-0.08, -0.06, 0] : [0.08, -0.06, 0],
             };
             const [nx, ny, nz] = nudge[node.id] ?? [0, isLoop ? 0.12 : 0.08, 0];
             htmlLabels.push({
@@ -668,7 +679,7 @@ export function ProcessInstrumentGraph({
         }
 
         // Extra dense subordinate hollow rings (SoT universe density — quiet, not beads).
-        const extraRingCount = portrait ? 90 : 140;
+        const extraRingCount = portrait ? 280 : 460;
         for (let i = 0; i < extraRingCount; i += 1) {
           const s = ((i * 2654435761 + 97) >>> 0) / 0xffffffff;
           const t = ((i * 1597334677 + 13) >>> 0) / 0xffffffff;
@@ -718,9 +729,9 @@ export function ProcessInstrumentGraph({
         );
         const spokeMat = trackMat(
           new THREE.LineBasicMaterial({
-            color: SAGE_DIM,
+            color: 0x6a766e,
             transparent: true,
-            opacity: 0.055,
+            opacity: 0.14,
           }),
         );
         root.add(new THREE.LineSegments(spokeGeo, spokeMat));
@@ -742,7 +753,8 @@ export function ProcessInstrumentGraph({
           new THREE.CylinderGeometry(1, 1, 1, 4, 1, true),
         );
         const strokePulses: StrokePulse[] = [];
-        const pulseCount = Math.min(spokeSegs.length, portrait ? 42 : 64);
+        // Many riders at clearly different intervals (land stills alone insufficient).
+        const pulseCount = Math.min(spokeSegs.length, portrait ? 72 : 110);
         for (let i = 0; i < pulseCount; i += 1) {
           const mat = trackMat(
             new THREE.MeshBasicMaterial({
@@ -758,14 +770,16 @@ export function ProcessInstrumentGraph({
           strokePulses.push({
             mesh,
             mat,
-            phase: (i * 0.173 + (i % 9) * 0.041) % 1,
-            speed: 0.04 + (i % 11) * 0.01 + (i % 3) * 0.006,
+            phase: (i * 0.137 + (i % 13) * 0.053 + (i % 7) * 0.029) % 1,
+            // Distinct intervals — never a synchronized ribbon.
+            speed: 0.028 + (i % 17) * 0.007 + (i % 5) * 0.011 + (i % 3) * 0.004,
             kind: 'spoke',
             segIndex: i % spokeSegs.length,
-            haze: 0.5 + (i % 5) * 0.07,
+            haze: 0.35 + (i % 7) * 0.06,
           });
         }
-        for (let i = 0; i < 5; i += 1) {
+        // Extra staggered second wave on a different subset of spokes.
+        for (let i = 0; i < Math.min(spokeSegs.length, portrait ? 28 : 40); i += 1) {
           const mat = trackMat(
             new THREE.MeshBasicMaterial({
               color: WASH,
@@ -780,11 +794,33 @@ export function ProcessInstrumentGraph({
           strokePulses.push({
             mesh,
             mat,
-            phase: i / 5 + 0.05,
-            speed: 0.05 + i * 0.011,
+            phase: (0.5 + i * 0.211 + (i % 5) * 0.07) % 1,
+            speed: 0.055 + (i % 9) * 0.013 + (i % 4) * 0.008,
+            kind: 'spoke',
+            segIndex: (i * 3 + 1) % spokeSegs.length,
+            haze: 0.28 + (i % 4) * 0.05,
+          });
+        }
+        for (let i = 0; i < 8; i += 1) {
+          const mat = trackMat(
+            new THREE.MeshBasicMaterial({
+              color: WASH,
+              transparent: true,
+              opacity: 0,
+              depthWrite: false,
+              depthTest: true,
+            }),
+          );
+          const mesh = new THREE.Mesh(pulseGeo, mat);
+          root.add(mesh);
+          strokePulses.push({
+            mesh,
+            mat,
+            phase: i / 8 + 0.03,
+            speed: 0.036 + i * 0.009 + (i % 2) * 0.014,
             kind: 'loop',
             segIndex: i,
-            haze: 0.65,
+            haze: 0.45 + (i % 3) * 0.08,
           });
         }
         const pulseFrom = new THREE.Vector3();
@@ -816,11 +852,12 @@ export function ProcessInstrumentGraph({
           'position',
           new THREE.Float32BufferAttribute(loopLinePos, 3),
         );
+        // Almost-translucent hub-to-hub — never a bright jagged solid primary ribbon.
         const strokeMat = trackMat(
           new THREE.LineBasicMaterial({
-            color: 0xc5cec7,
+            color: 0x9aa69c,
             transparent: true,
-            opacity: 0.9,
+            opacity: 0.2,
           }),
         );
         root.add(new THREE.LineSegments(loopLineGeo, strokeMat));
@@ -910,7 +947,8 @@ export function ProcessInstrumentGraph({
             root.position.x = Math.cos(t * 0.095) * 0.08;
             stars.rotation.y = t * 0.012;
             stars.rotation.x = Math.sin(t * 0.04) * 0.02;
-            starMat.opacity = 0.18 + Math.sin(t * 0.35) * 0.04;
+            // Keep particle universe clearly readable (quiet breath, not dim washout).
+            starMat.opacity = 0.48 + Math.sin(t * 0.28) * 0.06;
 
             const inspect = m === 'inspect';
             const hover = m === 'hover' || inspect;
@@ -948,9 +986,10 @@ export function ProcessInstrumentGraph({
                   seg.a,
                   seg.b,
                   u,
-                  hover ? 0.0018 : 0.0015,
-                  hover ? 0.07 : 0.09,
-                  0.18,
+                  hover ? 0.006 : 0.005,
+                  // Faint+hazy but motion-readable across many spokes.
+                  hover ? 0.22 : 0.32,
+                  0.24,
                 );
               } else {
                 const half = 0.035;
@@ -971,18 +1010,18 @@ export function ProcessInstrumentGraph({
                   pulseFrom.distanceTo(pulseTo),
                   0.08,
                 );
-                // Hairline wash dash — stays inside thin stroke, never a fat band.
-                pulse.mesh.scale.set(0.0014, dashLen, 0.0014);
+                // Soft hazy wash dash — faint traveling presence, not a fat band.
+                pulse.mesh.scale.set(0.0055, dashLen, 0.0055);
                 const breath =
                   0.35 + 0.65 * Math.sin(u * Math.PI * 2 + pulse.phase * 4);
                 pulse.mat.opacity =
-                  (hover ? 0.08 : 0.11) * pulse.haze * breath * 0.65;
+                  (hover ? 0.18 : 0.28) * pulse.haze * breath * 0.75;
               }
             }
 
             if (hover && chapter) {
-              strokeMat.opacity = 0.45;
-              spokeMat.opacity = 0.1;
+              strokeMat.opacity = 0.16;
+              spokeMat.opacity = 0.18;
               for (let i = 0; i < LOOP_ORDER.length; i += 1) {
                 const id = LOOP_ORDER[i];
                 const isNeighbor =
@@ -990,7 +1029,7 @@ export function ProcessInstrumentGraph({
                   LOOP_ORDER[(i + LOOP_ORDER.length - 1) % LOOP_ORDER.length] ===
                     chapter ||
                   LOOP_ORDER[(i + 1) % LOOP_ORDER.length] === chapter;
-                neighborMats[i].opacity = isNeighbor ? 0.35 : 0;
+                neighborMats[i].opacity = isNeighbor ? 0.22 : 0;
               }
               for (const dn of depthNodes) {
                 const near =
@@ -1011,8 +1050,9 @@ export function ProcessInstrumentGraph({
                     : 0.14;
               }
             } else {
-              strokeMat.opacity = 0.9;
-              spokeMat.opacity = 0.055;
+              // Almost translucent hub-to-hub (Cos FAIL: not bright solid primary loop).
+              strokeMat.opacity = 0.2;
+              spokeMat.opacity = 0.14;
               for (const mat of neighborMats) {
                 mat.opacity = 0;
               }
@@ -1048,6 +1088,18 @@ export function ProcessInstrumentGraph({
               }
               const x = (worldPos.x * 0.5 + 0.5) * viewW;
               const y = (-worldPos.y * 0.5 + 0.5) * viewH;
+              // Hard XY clamp — parent stage clips overflow; keep full "Stills".
+              const halfW =
+                label.id === 'stills'
+                  ? portrait
+                    ? 36
+                    : 32
+                  : label.emphasis
+                    ? 26
+                    : 20;
+              const padY = label.emphasis ? 18 : 14;
+              const cx = Math.min(Math.max(x, halfW), viewW - halfW);
+              const cy = Math.min(Math.max(y, padY), viewH - padY);
               const twitchBoost =
                 twitch && label.id === 'ship'
                   ? 0.75 + Math.sin(t * 10) * 0.25
@@ -1055,7 +1107,7 @@ export function ProcessInstrumentGraph({
                     ? 1
                     : 0.55;
               label.el.style.opacity = String(twitchBoost);
-              label.el.style.transform = `translate(-50%,-120%) translate(${x}px,${y}px)${
+              label.el.style.transform = `translate(-50%,-120%) translate(${cx}px,${cy}px)${
                 twitch && label.id === 'ship'
                   ? ` scale(${1 + Math.sin(t * 10) * 0.04})`
                   : ''
