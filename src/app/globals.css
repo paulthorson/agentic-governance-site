@@ -97,7 +97,8 @@
 
 @media (max-width: 900px) {
   :root {
-    --ag-instrument-min-h: 22rem;
+    /* Land mobile SoT: full force-graph below chapters (not a cropped arc). */
+    --ag-instrument-min-h: max(26rem, 85vw);
   }
 
   .ag-void-body {
@@ -105,7 +106,7 @@
   }
 
   .ag-instrument-stage {
-    min-height: 22rem;
+    min-height: var(--ag-instrument-min-h);
     width: 100%;
   }
 }

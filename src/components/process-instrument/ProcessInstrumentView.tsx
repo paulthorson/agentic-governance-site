@@ -35,7 +35,7 @@ const ProcessInstrumentGraph = dynamic(
         className="ag-instrument-canvas"
         reason="loading"
       />
-    ),
+    ), // designed empty while chunk loads — never flat SVG kit
   },
 );
 
