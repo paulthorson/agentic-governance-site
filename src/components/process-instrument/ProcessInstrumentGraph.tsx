@@ -2,6 +2,9 @@
 
 import {useCallback, useEffect, useRef, useState} from 'react';
 import * as THREE from 'three';
+import {LineMaterial} from 'three/examples/jsm/lines/LineMaterial.js';
+import {LineSegments2} from 'three/examples/jsm/lines/LineSegments2.js';
+import {LineSegmentsGeometry} from 'three/examples/jsm/lines/LineSegmentsGeometry.js';
 import {InstrumentFallback} from '@/components/process-instrument/InstrumentFallback';
 import type {ProcessChapterId} from '@/lib/process-chapters';
 
@@ -186,8 +189,6 @@ function buildSpokePairs(
 
 const CONTEXT_EDGES = buildSpokePairs(NODES, 6);
 
-const SAGE_DIM = 0x4a554e;
-const WASH = 0xffffff;
 const VOID = 0x030303;
 
 type DepthNode = {
@@ -375,6 +376,11 @@ export function ProcessInstrumentGraph({
       if (w < 2 || h < 2) return;
       resizeCamera(w, h);
       renderer.setSize(w, h, false);
+      for (const mat of materials) {
+        if (mat instanceof LineMaterial) {
+          mat.resolution.set(w, h);
+        }
+      }
     };
 
     /** Wait until the stage has real layout — 0×0 hosts soft-fail on mobile. */
@@ -452,11 +458,12 @@ export function ProcessInstrumentGraph({
         const narrowMobile =
           typeof window !== 'undefined' && window.innerWidth <= 430;
         const useLite = Boolean(portrait && (preferLite || narrowMobile));
-        const dprCap = useLite ? 1 : portrait ? 1.25 : 2;
+        // Smooth lines need AA + enough DPR — dpr=1 + antialias:false = bead stipple.
+        const dprCap = useLite ? 1.5 : portrait ? 1.75 : 2;
         const rainCount = useLite ? 0 : portrait ? 8 : 22;
         // Dense universe — lite keeps readable Points, fewer heavy rings.
-        const starCount = useLite ? 2400 : portrait ? 4200 : 7200;
-        const fieldPointCount = useLite ? 560 : portrait ? 900 : 1400;
+        const starCount = useLite ? 2800 : portrait ? 4800 : 7200;
+        const fieldPointCount = useLite ? 720 : portrait ? 1100 : 1400;
 
         // Scrub any leftover canvas/label DOM before paint (StrictMode / remount ghosts).
         host
@@ -499,7 +506,9 @@ export function ProcessInstrumentGraph({
 
         renderer = new THREE.WebGLRenderer({
           canvas,
-          antialias: !portrait,
+          // ALWAYS on — portrait AA-off rasterized LineSegments as dashed bead trails
+          // (UX line-4 FAIL @ 3da433f / DESIGN_AGENCY_BAR).
+          antialias: true,
           alpha: true,
           // default > low-power on mobile — low-power blanked Cos-box @390.
           powerPreference: 'default',
@@ -776,7 +785,8 @@ export function ProcessInstrumentGraph({
           });
         }
 
-        // Almost-translucent spoke cloud (hub↔hub + dense dust lattice).
+        // Almost-translucent spoke cloud — LineSegments2 (triangle strips), NEVER
+        // GL_LINES: native LineSegments rasterize as dashed bead trails on mobile.
         const spokeSegs: Array<{a: THREE.Vector3; b: THREE.Vector3}> = [];
         const spokePositions: number[] = [];
         for (const [a, b] of CONTEXT_EDGES) {
@@ -786,102 +796,92 @@ export function ProcessInstrumentGraph({
           spokeSegs.push({a: pa, b: pb});
           spokePositions.push(pa.x, pa.y, pa.z, pb.x, pb.y, pb.z);
         }
-        const spokeGeo = trackGeo(new THREE.BufferGeometry());
-        spokeGeo.setAttribute(
-          'position',
-          new THREE.Float32BufferAttribute(spokePositions, 3),
-        );
+        const spokeGeo = trackGeo(new LineSegmentsGeometry());
+        spokeGeo.setPositions(spokePositions);
         const spokeMat = trackMat(
-          new THREE.LineBasicMaterial({
+          new LineMaterial({
             color: 0x5e6a62,
             transparent: true,
             opacity: 0.16,
+            linewidth: portrait ? 1.05 : 1.15,
+            depthWrite: false,
+            dashed: false,
           }),
         );
-        root.add(new THREE.LineSegments(spokeGeo, spokeMat));
+        spokeMat.resolution.set(width, height);
+        root.add(new LineSegments2(spokeGeo, spokeMat));
 
         /**
-         * Paul LOCK: very faint hazy wash INSIDE thin strokes.
-         * Kill opaque cylinder bars / dashed bead trails (Cos FAIL @ b23a67c).
-         * Same LineBasicMaterial family as hub spokes — never Mesh cylinders.
+         * Paul LOCK / DESIGN_AGENCY_BAR: VERY faint hazy wash INSIDE strokes.
+         * Kill GL_LINES / short 2-pt pulses — they rasterize as dashed bead trails
+         * (FAIL @ 3da433f). Desk+mobile+motion: soft FULL-EDGE opacity lobes on
+         * continuous LineSegments2 overlays (same thin stroke family). Never dots.
          */
-        type StrokePulse = {
-          line: THREE.Line;
-          mat: THREE.LineBasicMaterial;
-          pos: THREE.BufferAttribute;
+        type EdgeWash = {
+          mat: LineMaterial;
           phase: number;
           speed: number;
-          kind: 'spoke' | 'loop';
-          segIndex: number;
           haze: number;
         };
-        const makePulseLine = (): StrokePulse['line'] => {
-          const geo = trackGeo(new THREE.BufferGeometry());
-          const pos = new THREE.BufferAttribute(new Float32Array(6), 3);
-          geo.setAttribute('position', pos);
+        const edgeWashes: EdgeWash[] = [];
+        const makeEdgeWash = (
+          a: THREE.Vector3,
+          b: THREE.Vector3,
+          phase: number,
+          speed: number,
+          haze: number,
+        ) => {
+          const geo = trackGeo(new LineSegmentsGeometry());
+          geo.setPositions([a.x, a.y, a.z, b.x, b.y, b.z]);
           const mat = trackMat(
-            new THREE.LineBasicMaterial({
-              // Apple-quiet sage wash — never chalk white bands / bead trails.
-              color: 0x9aa69c,
+            new LineMaterial({
+              // Sage in-stroke wash — never chalk-white bead trails.
+              color: 0x8e9a92,
               transparent: true,
               opacity: 0,
+              linewidth: portrait ? 1.35 : 1.5,
               depthWrite: false,
+              dashed: false,
             }),
           );
-          const line = new THREE.Line(geo, mat);
-          line.frustumCulled = false;
-          root.add(line);
-          return line;
+          mat.resolution.set(width, height);
+          root.add(new LineSegments2(geo, mat));
+          edgeWashes.push({mat, phase, speed, haze});
         };
-        const strokePulses: StrokePulse[] = [];
-        // Sparse staggered riders — prove travel without bead ribbons.
-        const pulseCount = Math.min(
+        // Sparse staggered full-edge washes (unique spokes) — living mesh, not beads.
+        const washMax = Math.min(
           spokeSegs.length,
-          useLite ? 10 : portrait ? 16 : 28,
+          useLite ? 8 : portrait ? 12 : 16,
         );
-        for (let i = 0; i < pulseCount; i += 1) {
-          const line = makePulseLine();
-          strokePulses.push({
-            line,
-            mat: line.material as THREE.LineBasicMaterial,
-            pos: line.geometry.getAttribute('position') as THREE.BufferAttribute,
-            phase: (i * 0.211 + (i % 9) * 0.053) % 1,
-            speed: 0.022 + (i % 11) * 0.006 + (i % 5) * 0.008,
-            kind: 'spoke',
-            segIndex: i % spokeSegs.length,
-            haze: 0.28 + (i % 5) * 0.04,
-          });
+        const usedWashSegs = new Set<number>();
+        for (let i = 0; i < washMax; i += 1) {
+          const segIndex = (i * 11 + 3) % spokeSegs.length;
+          if (usedWashSegs.has(segIndex)) continue;
+          usedWashSegs.add(segIndex);
+          const seg = spokeSegs[segIndex];
+          makeEdgeWash(
+            seg.a,
+            seg.b,
+            (i * 0.27 + 0.05) % 1,
+            0.018 + (i % 5) * 0.004,
+            0.22 + (i % 3) * 0.03,
+          );
         }
-        for (let i = 0; i < Math.min(spokeSegs.length, useLite ? 4 : portrait ? 8 : 12); i += 1) {
-          const line = makePulseLine();
-          strokePulses.push({
-            line,
-            mat: line.material as THREE.LineBasicMaterial,
-            pos: line.geometry.getAttribute('position') as THREE.BufferAttribute,
-            phase: (0.62 + i * 0.23 + (i % 3) * 0.09) % 1,
-            speed: 0.041 + (i % 7) * 0.009 + (i % 4) * 0.005,
-            kind: 'spoke',
-            segIndex: (i * 7 + 3) % spokeSegs.length,
-            haze: 0.24 + (i % 4) * 0.035,
-          });
+        // Loop-edge washes — continuous hub-to-hub soft travel.
+        for (let i = 0; i < LOOP_ORDER.length; i += 1) {
+          const a = nodeMap.get(LOOP_ORDER[i]);
+          const b = nodeMap.get(LOOP_ORDER[(i + 1) % LOOP_ORDER.length]);
+          if (!a || !b) continue;
+          makeEdgeWash(
+            a,
+            b,
+            i / LOOP_ORDER.length + 0.08,
+            0.024 + (i % 3) * 0.005,
+            0.28 + (i % 2) * 0.03,
+          );
         }
-        for (let i = 0; i < (useLite ? 3 : 5); i += 1) {
-          const line = makePulseLine();
-          strokePulses.push({
-            line,
-            mat: line.material as THREE.LineBasicMaterial,
-            pos: line.geometry.getAttribute('position') as THREE.BufferAttribute,
-            phase: i / (useLite ? 3 : 5) + 0.06,
-            speed: 0.03 + i * 0.008 + (i % 2) * 0.011,
-            kind: 'loop',
-            segIndex: i,
-            haze: 0.32 + (i % 3) * 0.04,
-          });
-        }
-        const pulseFrom = new THREE.Vector3();
-        const pulseTo = new THREE.Vector3();
 
-        // Process loop = razor-thin polygonal LineSegments (SoT wire — kill fat tube).
+        // Process loop = razor-thin continuous stroke (SoT wire — kill fat tube / beads).
         const loopPts: THREE.Vector3[] = [];
         const loopLinePos: number[] = [];
         for (const id of LOOP_ORDER) {
@@ -893,49 +893,42 @@ export function ProcessInstrumentGraph({
           const b = loopPts[(i + 1) % loopPts.length];
           loopLinePos.push(a.x, a.y, a.z, b.x, b.y, b.z);
         }
-        const closedLoop = new THREE.CatmullRomCurve3(
-          loopPts,
-          true,
-          'catmullrom',
-          0.05,
-        );
-        const loopLineGeo = trackGeo(new THREE.BufferGeometry());
-        loopLineGeo.setAttribute(
-          'position',
-          new THREE.Float32BufferAttribute(loopLinePos, 3),
-        );
+        const loopLineGeo = trackGeo(new LineSegmentsGeometry());
+        loopLineGeo.setPositions(loopLinePos);
         // Almost-translucent hub-to-hub — never opaque bright bands.
         const strokeMat = trackMat(
-          new THREE.LineBasicMaterial({
+          new LineMaterial({
             color: 0x7a867e,
             transparent: true,
             opacity: 0.14,
+            linewidth: portrait ? 1.15 : 1.25,
+            depthWrite: false,
+            dashed: false,
           }),
         );
-        root.add(new THREE.LineSegments(loopLineGeo, strokeMat));
+        strokeMat.resolution.set(width, height);
+        root.add(new LineSegments2(loopLineGeo, strokeMat));
 
-        // Neighbor accents: thin line luminance only (no fat tube segments).
-        const neighborMats: THREE.LineBasicMaterial[] = [];
+        const neighborMats: LineMaterial[] = [];
         for (let i = 0; i < LOOP_ORDER.length; i += 1) {
           const a = nodeMap.get(LOOP_ORDER[i]);
           const b = nodeMap.get(LOOP_ORDER[(i + 1) % LOOP_ORDER.length]);
           if (!a || !b) continue;
-          const geo = trackGeo(new THREE.BufferGeometry());
-          geo.setAttribute(
-            'position',
-            new THREE.Float32BufferAttribute(
-              [a.x, a.y, a.z, b.x, b.y, b.z],
-              3,
-            ),
-          );
+          const geo = trackGeo(new LineSegmentsGeometry());
+          geo.setPositions([a.x, a.y, a.z, b.x, b.y, b.z]);
           const mat = trackMat(
-            new THREE.LineBasicMaterial({
-              color: WASH,
+            new LineMaterial({
+              // Sage neighbor accent — never chalk-white bead trails.
+              color: 0x9aa69c,
               transparent: true,
               opacity: 0,
+              linewidth: portrait ? 1.4 : 1.55,
+              depthWrite: false,
+              dashed: false,
             }),
           );
-          root.add(new THREE.LineSegments(geo, mat));
+          mat.resolution.set(width, height);
+          root.add(new LineSegments2(geo, mat));
           neighborMats.push(mat);
         }
 
@@ -949,30 +942,6 @@ export function ProcessInstrumentGraph({
           resizeObserver = new ResizeObserver(() => onResize());
           resizeObserver.observe(host);
         }
-
-        const placePulse = (
-          pulse: StrokePulse,
-          from: THREE.Vector3,
-          to: THREE.Vector3,
-          u: number,
-          peakOpacity: number,
-          half = 0.045,
-        ) => {
-          // Short in-stroke dash — hairline Line, same weight as spokes.
-          const u0 = Math.max(0, u - half);
-          const u1 = Math.min(1, u + half);
-          pulseFrom.lerpVectors(from, to, u0);
-          pulseTo.lerpVectors(from, to, u1);
-          pulse.pos.setXYZ(0, pulseFrom.x, pulseFrom.y, pulseFrom.z);
-          pulse.pos.setXYZ(1, pulseTo.x, pulseTo.y, pulseTo.z);
-          pulse.pos.needsUpdate = true;
-          const travel = Math.sin(u * Math.PI);
-          // Soft Gaussian-ish envelope — VERY faint/hazy, Apple-quiet.
-          const breath =
-            0.4 + 0.6 * Math.sin(u * Math.PI * 2 + pulse.phase * 4.5);
-          pulse.mat.opacity =
-            peakOpacity * pulse.haze * travel * travel * breath;
-        };
 
         const animate = () => {
           if (!alive || !renderer) return;
@@ -1027,37 +996,15 @@ export function ProcessInstrumentGraph({
               dn.mesh.quaternion.copy(camera.quaternion);
             }
 
-            for (const pulse of strokePulses) {
-              const u = (t * pulse.speed + pulse.phase) % 1;
-              if (pulse.kind === 'spoke') {
-                const seg = spokeSegs[pulse.segIndex];
-                if (!seg) {
-                  pulse.mat.opacity = 0;
-                  continue;
-                }
-                placePulse(
-                  pulse,
-                  seg.a,
-                  seg.b,
-                  u,
-                  // VERY faint/hazy in-stroke wash — Apple-quiet (line 4 LOCK).
-                  hover ? 0.06 : 0.085,
-                  0.042,
-                );
-              } else {
-                const half = 0.02;
-                const u0 = (u - half + 1) % 1;
-                const u1 = (u + half) % 1;
-                closedLoop.getPointAt(u0, pulseFrom);
-                closedLoop.getPointAt(u1, pulseTo);
-                pulse.pos.setXYZ(0, pulseFrom.x, pulseFrom.y, pulseFrom.z);
-                pulse.pos.setXYZ(1, pulseTo.x, pulseTo.y, pulseTo.z);
-                pulse.pos.needsUpdate = true;
-                const breath =
-                  0.45 + 0.55 * Math.sin(u * Math.PI * 2 + pulse.phase * 4);
-                pulse.mat.opacity =
-                  (hover ? 0.07 : 0.095) * pulse.haze * breath * breath;
-              }
+            for (const wash of edgeWashes) {
+              // Soft breath on FULL edge — in-stroke haze, never short dashes/beads.
+              const u = (t * wash.speed + wash.phase) % 1;
+              const travel = Math.sin(u * Math.PI);
+              const breath =
+                0.42 + 0.58 * Math.sin(u * Math.PI * 2 + wash.phase * 3.8);
+              // Barely-there but unpaid travel — readable in motion, never chalk.
+              wash.mat.opacity =
+                (hover ? 0.07 : 0.1) * wash.haze * travel * travel * breath;
             }
 
             if (hover && chapter) {
@@ -1070,7 +1017,7 @@ export function ProcessInstrumentGraph({
                   LOOP_ORDER[(i + LOOP_ORDER.length - 1) % LOOP_ORDER.length] ===
                     chapter ||
                   LOOP_ORDER[(i + 1) % LOOP_ORDER.length] === chapter;
-                neighborMats[i].opacity = isNeighbor ? 0.2 : 0;
+                neighborMats[i].opacity = isNeighbor ? 0.18 : 0;
               }
               for (const dn of depthNodes) {
                 const near =
