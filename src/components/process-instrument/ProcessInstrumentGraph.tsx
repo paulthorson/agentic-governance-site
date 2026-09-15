@@ -186,7 +186,6 @@ function buildSpokePairs(
 
 const CONTEXT_EDGES = buildSpokePairs(NODES, 3);
 
-const SAGE = 0x8a9a8e;
 const SAGE_DIM = 0x4a554e;
 const WASH = 0xffffff;
 const VOID = 0x030303;
