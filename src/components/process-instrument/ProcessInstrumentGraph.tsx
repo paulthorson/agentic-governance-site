@@ -188,67 +188,8 @@ const CONTEXT_EDGES = buildSpokePairs(NODES, 3);
 
 const SAGE = 0x8a9a8e;
 const SAGE_DIM = 0x4a554e;
-const SAGE_DUST = 0x3a433d;
 const WASH = 0xffffff;
 const VOID = 0x030303;
-
-function makeLabelTexture(text: string, emphasis: boolean): THREE.CanvasTexture {
-  // Tight canvas + single crisp fill — no stroke/shadow (ghost FAIL).
-  const dpr = Math.min(
-    typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1,
-    2,
-  );
-  const fontPx = emphasis ? 26 : 18;
-  const font = emphasis
-    ? `500 ${fontPx}px Geist, ui-sans-serif, system-ui, sans-serif`
-    : `400 ${fontPx}px Geist, ui-sans-serif, system-ui, sans-serif`;
-  const measure = document.createElement('canvas').getContext('2d');
-  let textW = Math.ceil(text.length * fontPx * 0.62);
-  if (measure) {
-    measure.font = font;
-    textW = Math.ceil(measure.measureText(text).width);
-  }
-  const padX = 10;
-  const padY = 8;
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.max(32, Math.ceil((textW + padX * 2) * dpr));
-  canvas.height = Math.max(24, Math.ceil((fontPx + padY * 2) * dpr));
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    return new THREE.CanvasTexture(canvas);
-  }
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
-  ctx.font = font;
-  ctx.fillStyle = emphasis
-    ? 'rgba(242,241,236,0.94)'
-    : 'rgba(138,154,142,0.38)';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(text, canvas.width / dpr / 2, canvas.height / dpr / 2);
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  texture.needsUpdate = true;
-  // Premultiply OFF — avoids soft double-composite “ghost” glyphs on sprites.
-  texture.premultiplyAlpha = false;
-  texture.generateMipmaps = false;
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-  return texture;
-}
-
-function textureAspect(map: THREE.Texture | null | undefined, fallback: number): number {
-  const image = map?.image as {width?: number; height?: number} | undefined;
-  if (
-    image &&
-    typeof image.width === 'number' &&
-    typeof image.height === 'number' &&
-    image.height > 0
-  ) {
-    return image.width / image.height;
-  }
-  return fallback;
-}
 
 type DepthNode = {
   mesh: THREE.Object3D;
@@ -306,6 +247,7 @@ export function ProcessInstrumentGraph({
     let resizeObserver: ResizeObserver | null = null;
     let renderer: THREE.WebGLRenderer | null = null;
     let canvas: HTMLCanvasElement | null = null;
+    let labelLayer: HTMLDivElement | null = null;
     const geometries: THREE.BufferGeometry[] = [];
     const materials: THREE.Material[] = [];
     const textures: THREE.Texture[] = [];
@@ -346,6 +288,10 @@ export function ProcessInstrumentGraph({
         }
         renderer = null;
         canvas = null;
+      }
+      if (labelLayer && labelLayer.parentNode === host) {
+        host.removeChild(labelLayer);
+        labelLayer = null;
       }
       for (const t of textures) {
         try {
@@ -470,8 +416,8 @@ export function ProcessInstrumentGraph({
           (typeof window !== 'undefined' && window.innerWidth <= 900);
         const dprCap = portrait ? 1.5 : 2;
         const rainCount = portrait ? 20 : 32;
-        const starCount = portrait ? 900 : 1600;
-        const fieldPointCount = portrait ? 140 : 220;
+        const starCount = portrait ? 1100 : 1800;
+        const fieldPointCount = portrait ? 180 : 280;
 
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(VOID, 0.028);
@@ -507,7 +453,7 @@ export function ProcessInstrumentGraph({
 
         renderer = new THREE.WebGLRenderer({
           canvas,
-          antialias: !portrait,
+          antialias: true,
           alpha: true,
           powerPreference: portrait ? 'low-power' : 'default',
           failIfMajorPerformanceCaveat: false,
@@ -605,8 +551,20 @@ export function ProcessInstrumentGraph({
         scene.add(rain);
 
         const nodeMap = new Map<string, THREE.Vector3>();
-        const labelSprites = new Map<string, THREE.Sprite>();
         const depthNodes: DepthNode[] = [];
+        type HtmlLabel = {
+          id: string;
+          el: HTMLDivElement;
+          local: THREE.Vector3;
+          emphasis: boolean;
+        };
+        const htmlLabels: HtmlLabel[] = [];
+        labelLayer = document.createElement('div');
+        labelLayer.setAttribute('data-instrument-labels', 'html');
+        labelLayer.style.cssText =
+          'position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2;';
+        host.appendChild(labelLayer);
+
         const sharedSphere = trackGeo(new THREE.SphereGeometry(1, 12, 12));
         // Quiet hollow SoT ring (RingGeometry billboard) — not a filled glow bead.
         const sharedRing = trackGeo(new THREE.RingGeometry(0.72, 1, 28));
@@ -653,36 +611,40 @@ export function ProcessInstrumentGraph({
           root.add(mesh);
           depthNodes.push({
             mesh,
-            baseRadius: isLoop ? node.radius : node.radius * (node.kind === 'code' ? 0.85 : 1),
+            baseRadius: isLoop
+              ? node.radius
+              : node.radius * (node.kind === 'code' ? 0.85 : 1),
             kind: node.kind,
             id: node.id,
             mat,
           });
 
-          if (node.label) {
-            const labelMap = trackTex(makeLabelTexture(node.label, isLoop));
-            const aspect = textureAspect(labelMap, isLoop ? 4 : 3.2);
-            const spriteH = isLoop ? 0.18 : node.kind === 'context' ? 0.14 : 0.11;
-            const sprite = new THREE.Sprite(
-              trackMat(
-                new THREE.SpriteMaterial({
-                  map: labelMap,
-                  transparent: true,
-                  depthTest: true,
-                  depthWrite: false,
-                  fog: false,
-                  alphaTest: 0.4,
-                  opacity: isLoop ? 1 : node.kind === 'context' ? 0.55 : 0.36,
-                }),
-              ),
-            );
-            sprite.position
-              .copy(pos)
-              .add(new THREE.Vector3(0, isLoop ? 0.15 : 0.09, 0.02));
-            sprite.scale.set(spriteH * aspect, spriteH, 1);
-            sprite.renderOrder = isLoop ? 3 : 1;
-            root.add(sprite);
-            labelSprites.set(node.id, sprite);
+          if (node.label && labelLayer) {
+            // HTML labels — crisp, single glyph; kills canvas-sprite ghost doubles.
+            const el = document.createElement('div');
+            el.textContent = node.label;
+            const emphasis = isLoop;
+            el.style.cssText = [
+              'position:absolute',
+              'left:0',
+              'top:0',
+              'transform:translate(-50%,-120%)',
+              'white-space:nowrap',
+              'pointer-events:none',
+              `font:${emphasis ? '500 12px' : '400 10px'} Geist, ui-sans-serif, system-ui, sans-serif`,
+              `color:${emphasis ? 'rgba(242,241,236,0.94)' : 'rgba(138,154,142,0.45)'}`,
+              'letter-spacing:0.01em',
+              'text-shadow:none',
+              'opacity:0',
+              'will-change:transform,opacity',
+            ].join(';');
+            labelLayer.appendChild(el);
+            htmlLabels.push({
+              id: node.id,
+              el,
+              local: pos.clone().add(new THREE.Vector3(0, isLoop ? 0.12 : 0.08, 0)),
+              emphasis,
+            });
           }
         }
 
@@ -1009,16 +971,38 @@ export function ProcessInstrumentGraph({
               }
             }
 
-            const shipLabel = labelSprites.get('ship');
-            if (shipLabel) {
-              const labelMat = shipLabel.material as THREE.SpriteMaterial;
-              labelMat.opacity = twitch
-                ? 0.7 + Math.sin(t * 10) * 0.3
-                : 1;
-              const baseH = 0.18;
-              const aspect = textureAspect(labelMat.map, 3.2);
-              const pulse = twitch ? 1 + Math.sin(t * 10) * 0.04 : 1;
-              shipLabel.scale.set(baseH * aspect * pulse, baseH * pulse, 1);
+            // Project HTML labels (single crisp glyph — no canvas-sprite ghosts).
+            root.updateMatrixWorld(true);
+            const viewW = renderer.domElement.clientWidth;
+            const viewH = renderer.domElement.clientHeight;
+            for (const label of htmlLabels) {
+              worldPos.copy(label.local);
+              root.localToWorld(worldPos);
+              worldPos.project(camera);
+              const visible =
+                worldPos.z < 1 &&
+                worldPos.x > -1.15 &&
+                worldPos.x < 1.15 &&
+                worldPos.y > -1.15 &&
+                worldPos.y < 1.15;
+              if (!visible) {
+                label.el.style.opacity = '0';
+                continue;
+              }
+              const x = (worldPos.x * 0.5 + 0.5) * viewW;
+              const y = (-worldPos.y * 0.5 + 0.5) * viewH;
+              const twitchBoost =
+                twitch && label.id === 'ship'
+                  ? 0.75 + Math.sin(t * 10) * 0.25
+                  : label.emphasis
+                    ? 1
+                    : 0.55;
+              label.el.style.opacity = String(twitchBoost);
+              label.el.style.transform = `translate(-50%,-120%) translate(${x}px,${y}px)${
+                twitch && label.id === 'ship'
+                  ? ` scale(${1 + Math.sin(t * 10) * 0.04})`
+                  : ''
+              }`;
             }
 
             rain.rotation.y = t * 0.016;
