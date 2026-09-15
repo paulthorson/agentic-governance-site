@@ -13,7 +13,7 @@ type State = {
   retryCount: number;
 };
 
-const MAX_AUTO_RETRIES = 6;
+const MAX_BURST_RETRIES = 8;
 
 /**
  * Catch paint/hydrate throws so the tab stays up (#8).
@@ -45,9 +45,11 @@ export class InstrumentErrorBoundary extends Component<Props, State> {
   private scheduleRemount = () => {
     if (this.retryTimer) clearTimeout(this.retryTimer);
     const attempt = this.state.retryCount;
-    if (attempt >= MAX_AUTO_RETRIES) return;
-    // Backoff: keep trying to restore true-3D face.
-    const delay = Math.min(400 + attempt * 500, 2800);
+    // Never settle on empty void — keep remounting true-3D forever.
+    const delay =
+      attempt < MAX_BURST_RETRIES
+        ? Math.min(400 + attempt * 500, 2800)
+        : 4000;
     this.retryTimer = setTimeout(() => {
       this.setState((s) => ({
         hasError: false,
