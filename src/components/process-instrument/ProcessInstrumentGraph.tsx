@@ -415,8 +415,8 @@ export function ProcessInstrumentGraph({
           (typeof window !== 'undefined' && window.innerWidth <= 900);
         const dprCap = portrait ? 1.5 : 2;
         const rainCount = portrait ? 20 : 32;
-        const starCount = portrait ? 1100 : 1800;
-        const fieldPointCount = portrait ? 180 : 280;
+        const starCount = portrait ? 1400 : 1800;
+        const fieldPointCount = portrait ? 220 : 280;
 
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(VOID, 0.028);
@@ -638,10 +638,25 @@ export function ProcessInstrumentGraph({
               'will-change:transform,opacity',
             ].join(';');
             labelLayer.appendChild(el);
+            // Per-hub nudge so Recap/Research etc. don't stack on mobile.
+            const nudge: Record<string, [number, number, number]> = {
+              research: [-0.12, 0.14, 0.04],
+              brief: [0.05, 0.16, 0],
+              stills: [0.12, 0.12, 0.02],
+              challenge: [0.1, -0.02, 0],
+              ship: [0, -0.14, 0.02],
+              recap: [-0.14, 0.02, 0],
+              next: [-0.1, 0.08, 0],
+              design: [0.1, 0.06, 0],
+              product: [0.05, 0.1, 0],
+              lead: [-0.05, 0.1, 0],
+              build: [0.08, -0.06, 0],
+            };
+            const [nx, ny, nz] = nudge[node.id] ?? [0, isLoop ? 0.12 : 0.08, 0];
             htmlLabels.push({
               id: node.id,
               el,
-              local: pos.clone().add(new THREE.Vector3(0, isLoop ? 0.12 : 0.08, 0)),
+              local: pos.clone().add(new THREE.Vector3(nx, ny, nz)),
               emphasis,
             });
           }
