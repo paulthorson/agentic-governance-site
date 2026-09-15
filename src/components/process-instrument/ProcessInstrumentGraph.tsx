@@ -801,101 +801,85 @@ export function ProcessInstrumentGraph({
         root.add(new THREE.LineSegments(spokeGeo, spokeMat));
 
         /**
-         * VERY FAINT + HAZY data pulses — staggered intervals across MANY spokes.
-         * Motion-readable for Cos craft-gate (land stills alone insufficient).
+         * Paul LOCK: very faint hazy wash INSIDE thin strokes.
+         * Kill opaque cylinder bars / dashed bead trails (Cos FAIL @ b23a67c).
+         * Same LineBasicMaterial family as hub spokes — never Mesh cylinders.
          */
         type StrokePulse = {
-          mesh: THREE.Mesh;
-          mat: THREE.MeshBasicMaterial;
+          line: THREE.Line;
+          mat: THREE.LineBasicMaterial;
+          pos: THREE.BufferAttribute;
           phase: number;
           speed: number;
           kind: 'spoke' | 'loop';
           segIndex: number;
           haze: number;
         };
-        const pulseGeo = trackGeo(
-          new THREE.CylinderGeometry(1, 1, 1, 6, 1, true),
-        );
+        const makePulseLine = (): StrokePulse['line'] => {
+          const geo = trackGeo(new THREE.BufferGeometry());
+          const pos = new THREE.BufferAttribute(new Float32Array(6), 3);
+          geo.setAttribute('position', pos);
+          const mat = trackMat(
+            new THREE.LineBasicMaterial({
+              // Soft sage-white — never pure chalk white bars.
+              color: 0xb8c2ba,
+              transparent: true,
+              opacity: 0,
+              depthWrite: false,
+            }),
+          );
+          const line = new THREE.Line(geo, mat);
+          line.frustumCulled = false;
+          root.add(line);
+          return line;
+        };
         const strokePulses: StrokePulse[] = [];
-        // Many riders at clearly different intervals — wait-frame readable.
+        // Sparse staggered riders — enough to prove motion, not a bead ribbon.
         const pulseCount = Math.min(
           spokeSegs.length,
-          useLite ? 28 : portrait ? 48 : 96,
+          useLite ? 14 : portrait ? 22 : 36,
         );
         for (let i = 0; i < pulseCount; i += 1) {
-          const mat = trackMat(
-            new THREE.MeshBasicMaterial({
-              color: WASH,
-              transparent: true,
-              opacity: 0,
-              depthWrite: false,
-              depthTest: true,
-              blending: THREE.AdditiveBlending,
-            }),
-          );
-          const mesh = new THREE.Mesh(pulseGeo, mat);
-          root.add(mesh);
+          const line = makePulseLine();
           strokePulses.push({
-            mesh,
-            mat,
-            phase: (i * 0.137 + (i % 13) * 0.053 + (i % 7) * 0.029) % 1,
-            speed: 0.034 + (i % 17) * 0.008 + (i % 5) * 0.012 + (i % 3) * 0.005,
+            line,
+            mat: line.material as THREE.LineBasicMaterial,
+            pos: line.geometry.getAttribute('position') as THREE.BufferAttribute,
+            phase: (i * 0.173 + (i % 11) * 0.047) % 1,
+            speed: 0.028 + (i % 13) * 0.007 + (i % 5) * 0.009,
             kind: 'spoke',
             segIndex: i % spokeSegs.length,
-            haze: 0.45 + (i % 7) * 0.07,
+            haze: 0.35 + (i % 5) * 0.05,
           });
         }
-        for (let i = 0; i < Math.min(spokeSegs.length, useLite ? 12 : portrait ? 24 : 36); i += 1) {
-          const mat = trackMat(
-            new THREE.MeshBasicMaterial({
-              color: WASH,
-              transparent: true,
-              opacity: 0,
-              depthWrite: false,
-              depthTest: true,
-              blending: THREE.AdditiveBlending,
-            }),
-          );
-          const mesh = new THREE.Mesh(pulseGeo, mat);
-          root.add(mesh);
+        for (let i = 0; i < Math.min(spokeSegs.length, useLite ? 6 : portrait ? 10 : 14); i += 1) {
+          const line = makePulseLine();
           strokePulses.push({
-            mesh,
-            mat,
-            phase: (0.5 + i * 0.211 + (i % 5) * 0.07) % 1,
-            speed: 0.062 + (i % 9) * 0.014 + (i % 4) * 0.009,
+            line,
+            mat: line.material as THREE.LineBasicMaterial,
+            pos: line.geometry.getAttribute('position') as THREE.BufferAttribute,
+            phase: (0.55 + i * 0.19 + (i % 3) * 0.07) % 1,
+            speed: 0.05 + (i % 7) * 0.011 + (i % 4) * 0.006,
             kind: 'spoke',
-            segIndex: (i * 3 + 1) % spokeSegs.length,
-            haze: 0.38 + (i % 4) * 0.06,
+            segIndex: (i * 5 + 2) % spokeSegs.length,
+            haze: 0.3 + (i % 4) * 0.04,
           });
         }
-        for (let i = 0; i < (useLite ? 6 : 10); i += 1) {
-          const mat = trackMat(
-            new THREE.MeshBasicMaterial({
-              color: WASH,
-              transparent: true,
-              opacity: 0,
-              depthWrite: false,
-              depthTest: true,
-              blending: THREE.AdditiveBlending,
-            }),
-          );
-          const mesh = new THREE.Mesh(pulseGeo, mat);
-          root.add(mesh);
+        for (let i = 0; i < (useLite ? 4 : 6); i += 1) {
+          const line = makePulseLine();
           strokePulses.push({
-            mesh,
-            mat,
-            phase: i / (useLite ? 6 : 10) + 0.02,
-            speed: 0.048 + i * 0.012 + (i % 2) * 0.018,
+            line,
+            mat: line.material as THREE.LineBasicMaterial,
+            pos: line.geometry.getAttribute('position') as THREE.BufferAttribute,
+            phase: i / (useLite ? 4 : 6) + 0.04,
+            speed: 0.036 + i * 0.009 + (i % 2) * 0.012,
             kind: 'loop',
             segIndex: i,
-            haze: 0.7 + (i % 3) * 0.1,
+            haze: 0.4 + (i % 3) * 0.05,
           });
         }
         const pulseFrom = new THREE.Vector3();
         const pulseTo = new THREE.Vector3();
-        const pulseMid = new THREE.Vector3();
-        const pulseDir = new THREE.Vector3();
-        const yAxis = new THREE.Vector3(0, 1, 0);
 
         // Process loop = razor-thin polygonal LineSegments (SoT wire — kill fat tube).
         const loopPts: THREE.Vector3[] = [];
@@ -971,33 +955,22 @@ export function ProcessInstrumentGraph({
           from: THREE.Vector3,
           to: THREE.Vector3,
           u: number,
-          radius: number,
           peakOpacity: number,
-          half = 0.14,
+          half = 0.07,
         ) => {
+          // Short in-stroke dash — hairline Line, same weight family as spokes.
           const u0 = Math.max(0, u - half);
           const u1 = Math.min(1, u + half);
           pulseFrom.lerpVectors(from, to, u0);
           pulseTo.lerpVectors(from, to, u1);
-          pulseMid.lerpVectors(pulseFrom, pulseTo, 0.5);
-          pulseDir.subVectors(pulseTo, pulseFrom);
-          const len = Math.max(pulseDir.length(), 0.001);
-          pulseDir.normalize();
-          pulse.mesh.position.copy(pulseMid);
-          if (Math.abs(pulseDir.y) > 0.999) {
-            pulse.mesh.quaternion.identity();
-            if (pulseDir.y < 0) {
-              pulse.mesh.rotateX(Math.PI);
-            }
-          } else {
-            pulse.mesh.quaternion.setFromUnitVectors(yAxis, pulseDir);
-          }
-          pulse.mesh.scale.set(radius, len, radius);
-          // Soft hazy envelope — faint peak, soft falloff (still motion-readable).
+          pulse.pos.setXYZ(0, pulseFrom.x, pulseFrom.y, pulseFrom.z);
+          pulse.pos.setXYZ(1, pulseTo.x, pulseTo.y, pulseTo.z);
+          pulse.pos.needsUpdate = true;
           const travel = Math.sin(u * Math.PI);
-          const breath = 0.55 + 0.45 * Math.sin(u * Math.PI * 2 + pulse.phase * 6);
-          pulse.mat.opacity =
-            peakOpacity * pulse.haze * travel * breath * 0.85;
+          const breath =
+            0.55 + 0.45 * Math.sin(u * Math.PI * 2 + pulse.phase * 5);
+          // Very faint peak — readable in motion, never opaque bars.
+          pulse.mat.opacity = peakOpacity * pulse.haze * travel * breath;
         };
 
         const animate = () => {
@@ -1009,14 +982,14 @@ export function ProcessInstrumentGraph({
             const {mode: m, activeChapter: chapter, shipTwitch: twitch} =
               stateRef.current;
 
-            // Land: near-static pose — kills compositor smear ghosts Cos saw on live.
-            // Hover/inspect: mild living drift only.
+            // Living universe stays in motion (Cos motion-clip AC) — labels stay
+            // crisp via throttled binary visibility below.
             if (m === 'land') {
-              root.rotation.y = 0.55 + Math.sin(t * 0.035) * 0.02;
-              root.rotation.x = 0.28 + Math.sin(t * 0.028) * 0.012;
-              root.rotation.z = Math.cos(t * 0.022) * 0.008;
-              root.position.y = Math.sin(t * 0.04) * 0.012;
-              root.position.x = Math.cos(t * 0.032) * 0.01;
+              root.rotation.y = 0.55 + Math.sin(t * 0.055) * 0.06;
+              root.rotation.x = 0.28 + Math.sin(t * 0.045) * 0.04;
+              root.rotation.z = Math.cos(t * 0.038) * 0.02;
+              root.position.y = Math.sin(t * 0.07) * 0.03;
+              root.position.x = Math.cos(t * 0.055) * 0.025;
             } else {
               root.rotation.y = Math.sin(t * 0.08) * 0.14 + 0.55;
               root.rotation.x = Math.sin(t * 0.06) * 0.1 + 0.28;
@@ -1024,8 +997,8 @@ export function ProcessInstrumentGraph({
               root.position.y = Math.sin(t * 0.11) * 0.06;
               root.position.x = Math.cos(t * 0.08) * 0.05;
             }
-            stars.rotation.y = t * 0.008;
-            stars.rotation.x = Math.sin(t * 0.025) * 0.012;
+            stars.rotation.y = t * 0.014;
+            stars.rotation.x = Math.sin(t * 0.04) * 0.02;
             // Keep particle universe clearly readable (quiet breath, not dim washout).
             starMat.opacity = 0.5 + Math.sin(t * 0.25) * 0.05;
 
@@ -1067,36 +1040,23 @@ export function ProcessInstrumentGraph({
                   seg.a,
                   seg.b,
                   u,
-                  hover ? 0.01 : 0.0085,
-                  // Wait-frame readable hazy wash across many spokes.
-                  hover ? 0.32 : 0.48,
-                  0.28,
+                  // Faint in-stroke wash only — never opaque bars.
+                  hover ? 0.1 : 0.14,
+                  0.065,
                 );
               } else {
-                const half = 0.035;
+                const half = 0.028;
                 const u0 = (u - half + 1) % 1;
                 const u1 = (u + half) % 1;
                 closedLoop.getPointAt(u0, pulseFrom);
                 closedLoop.getPointAt(u1, pulseTo);
-                closedLoop.getPointAt(u, pulseMid);
-                closedLoop.getTangentAt(u, pulseDir).normalize();
-                pulse.mesh.position.copy(pulseMid);
-                if (Math.abs(pulseDir.y) > 0.999) {
-                  pulse.mesh.quaternion.identity();
-                  if (pulseDir.y < 0) pulse.mesh.rotateX(Math.PI);
-                } else {
-                  pulse.mesh.quaternion.setFromUnitVectors(yAxis, pulseDir);
-                }
-                const dashLen = Math.max(
-                  pulseFrom.distanceTo(pulseTo),
-                  0.08,
-                );
-                // Wait-frame readable soft wash — still not a fat band.
-                pulse.mesh.scale.set(0.01, dashLen, 0.01);
+                pulse.pos.setXYZ(0, pulseFrom.x, pulseFrom.y, pulseFrom.z);
+                pulse.pos.setXYZ(1, pulseTo.x, pulseTo.y, pulseTo.z);
+                pulse.pos.needsUpdate = true;
                 const breath =
-                  0.4 + 0.6 * Math.sin(u * Math.PI * 2 + pulse.phase * 4);
+                  0.5 + 0.5 * Math.sin(u * Math.PI * 2 + pulse.phase * 4);
                 pulse.mat.opacity =
-                  (hover ? 0.28 : 0.48) * pulse.haze * breath;
+                  (hover ? 0.11 : 0.15) * pulse.haze * breath;
               }
             }
 
