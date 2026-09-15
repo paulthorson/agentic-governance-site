@@ -35,147 +35,161 @@ const LOOP_ORDER: ProcessChapterId[] = [
 ];
 
 /**
- * Dense 3D projected force graph — SoT stills-39 / AG #39 @ 3e8de677.
- * Depth-sized FILLED points (not hollow spectacle beads / RingGeometry).
- * Active path = sage stroke + white wash INSIDE only.
+ * Living Process Instrument mesh — SoT stills-39 / AG #39 @ 3e8de677 floor
+ * + Paul LOCK 2026-09-14: VERY LARGE dense field, almost-translucent spokes,
+ * staggered faint hazy data pulses, quiet particle universe behind nodes.
+ * FAIL: thick glow tube · missing node field · label ghosts · spectacle beads.
  */
-const NODES: NodeDef[] = [
-  // Loop chapters — tiny depth ticks only (path wash is the signal; no joint beads).
-  {id: 'research', label: 'Research', position: [-1.45, 0.85, 0.85], kind: 'loop', chapter: 'research', radius: 0.011},
-  {id: 'brief', label: 'Brief', position: [0.2, 1.35, -0.55], kind: 'loop', chapter: 'brief', radius: 0.01},
-  {id: 'stills', label: 'Stills', position: [1.65, 0.55, 0.95], kind: 'loop', chapter: 'stills', radius: 0.011},
-  {id: 'challenge', label: 'Challenge', position: [1.35, -0.75, -0.7], kind: 'loop', chapter: 'challenge', radius: 0.01},
-  {id: 'ship', label: 'Ship', position: [-0.15, -1.3, 0.75], kind: 'loop', chapter: 'ship', radius: 0.011},
-  {id: 'recap', label: 'Recap', position: [-1.55, -0.35, -0.8], kind: 'loop', chapter: 'recap', radius: 0.01},
-  // Context roles — spatial clusters off the loop (never lit glowing spheres)
-  {id: 'next', label: 'Next', position: [-2.4, 0.3, 1.15], kind: 'context', chapter: 'next', radius: 0.012},
-  {id: 'design', label: 'Design', position: [2.35, 0.2, -1.2], kind: 'context', radius: 0.012},
-  {id: 'product', label: 'Product', position: [0.75, 2.05, 1.05], kind: 'context', radius: 0.012},
-  {id: 'lead', label: 'Lead', position: [-0.9, 2.1, -1.0], kind: 'context', radius: 0.012},
-  {id: 'build', label: 'Build', position: [2.15, -1.4, 0.9], kind: 'context', radius: 0.012},
+const HUB_NODES: NodeDef[] = [
+  // Loop hubs — quiet hollow SoT rings (not filled glow beads).
+  {id: 'research', label: 'Research', position: [-1.45, 0.85, 0.85], kind: 'loop', chapter: 'research', radius: 0.038},
+  {id: 'brief', label: 'Brief', position: [0.2, 1.35, -0.55], kind: 'loop', chapter: 'brief', radius: 0.034},
+  {id: 'stills', label: 'Stills', position: [1.65, 0.55, 0.95], kind: 'loop', chapter: 'stills', radius: 0.038},
+  {id: 'challenge', label: 'Challenge', position: [1.35, -0.75, -0.7], kind: 'loop', chapter: 'challenge', radius: 0.034},
+  {id: 'ship', label: 'Ship', position: [-0.15, -1.3, 0.75], kind: 'loop', chapter: 'ship', radius: 0.04},
+  {id: 'recap', label: 'Recap', position: [-1.55, -0.35, -0.8], kind: 'loop', chapter: 'recap', radius: 0.034},
+  // Context hubs
+  {id: 'next', label: 'Next', position: [-2.4, 0.3, 1.15], kind: 'context', chapter: 'next', radius: 0.032},
+  {id: 'design', label: 'Design', position: [2.35, 0.2, -1.2], kind: 'context', radius: 0.034},
+  {id: 'product', label: 'Product', position: [0.75, 2.05, 1.05], kind: 'context', radius: 0.033},
+  {id: 'lead', label: 'Lead', position: [-0.9, 2.1, -1.0], kind: 'context', radius: 0.033},
+  {id: 'build', label: 'Build', position: [2.15, -1.4, 0.9], kind: 'context', radius: 0.034},
   // Measured codes
-  {id: 'p01', label: 'P-01', position: [-2.7, 1.5, -1.35], kind: 'code', radius: 0.008},
-  {id: 'p02', label: 'P-02', position: [-2.85, -1.2, 0.7], kind: 'code', radius: 0.008},
-  {id: 'p03', label: 'P-03', position: [0.4, -2.2, -1.25], kind: 'code', radius: 0.008},
-  {id: 'p04', label: 'P-04', position: [2.85, 1.55, 0.45], kind: 'code', radius: 0.008},
-  {id: 'p05', label: 'P-05', position: [2.65, -0.4, 1.45], kind: 'code', radius: 0.008},
-  {id: 'p06', label: 'P-06', position: [-0.5, 0.1, -2.05], kind: 'code', radius: 0.007},
-  {id: 'p07', label: 'P-07', position: [1.0, -0.2, 1.95], kind: 'code', radius: 0.008},
-  {id: 'p08', label: 'P-08', position: [-1.95, 1.8, 1.5], kind: 'code', radius: 0.007},
-  {id: 'p09', label: 'P-09', position: [1.5, 1.85, -1.6], kind: 'code', radius: 0.007},
-  {id: 'p10', label: 'P-10', position: [-2.05, -1.75, -1.05], kind: 'code', radius: 0.007},
-  // Dense dust / cluster fillers — unlabeled, strong z-spread
-  {id: 'd01', position: [-1.1, 1.4, 1.6], kind: 'dust', radius: 0.005},
-  {id: 'd02', position: [-0.3, 1.7, -1.4], kind: 'dust', radius: 0.005},
-  {id: 'd03', position: [1.1, 1.2, 1.7], kind: 'dust', radius: 0.005},
-  {id: 'd04', position: [2.0, 0.9, -0.3], kind: 'dust', radius: 0.005},
-  {id: 'd05', position: [1.9, -0.9, 1.5], kind: 'dust', radius: 0.005},
-  {id: 'd06', position: [0.7, -1.6, 1.3], kind: 'dust', radius: 0.005},
-  {id: 'd07', position: [-0.8, -1.7, -1.5], kind: 'dust', radius: 0.005},
-  {id: 'd08', position: [-2.2, -0.8, 1.4], kind: 'dust', radius: 0.005},
-  {id: 'd09', position: [-2.0, 1.0, -0.2], kind: 'dust', radius: 0.005},
-  {id: 'd10', position: [0.2, 0.4, 2.1], kind: 'dust', radius: 0.004},
-  {id: 'd11', position: [0.1, -0.5, -2.2], kind: 'dust', radius: 0.004},
-  {id: 'd12', position: [1.3, -1.9, 0.2], kind: 'dust', radius: 0.005},
-  {id: 'd13', position: [-1.3, 0.5, 1.9], kind: 'dust', radius: 0.004},
-  {id: 'd14', position: [2.4, -0.1, 0.2], kind: 'dust', radius: 0.005},
-  {id: 'd15', position: [-0.4, 2.3, 0.3], kind: 'dust', radius: 0.005},
-  {id: 'd16', position: [0.9, 0.6, -1.8], kind: 'dust', radius: 0.004},
-  {id: 'd17', position: [-1.7, -1.1, 0.2], kind: 'dust', radius: 0.005},
-  {id: 'd18', position: [1.6, 1.0, 0.5], kind: 'dust', radius: 0.005},
-  {id: 'd19', position: [-0.6, -0.2, 1.4], kind: 'dust', radius: 0.004},
-  {id: 'd20', position: [0.5, 1.0, -0.9], kind: 'dust', radius: 0.005},
-  {id: 'd21', position: [2.1, 1.2, 1.1], kind: 'dust', radius: 0.004},
-  {id: 'd22', position: [-2.5, 0.6, -0.6], kind: 'dust', radius: 0.005},
-  {id: 'd23', position: [1.2, -0.6, -1.5], kind: 'dust', radius: 0.004},
-  {id: 'd24', position: [-1.0, 1.9, 0.6], kind: 'dust', radius: 0.005},
-  {id: 'd25', position: [0.0, -2.0, 0.9], kind: 'dust', radius: 0.004},
-  {id: 'd26', position: [2.6, -1.0, -0.5], kind: 'dust', radius: 0.005},
-  {id: 'd27', position: [-1.8, 0.0, -1.6], kind: 'dust', radius: 0.004},
-  {id: 'd28', position: [0.8, 1.6, -0.2], kind: 'dust', radius: 0.005},
+  {id: 'p01', label: 'P-01', position: [-2.7, 1.5, -1.35], kind: 'code', radius: 0.02},
+  {id: 'p02', label: 'P-02', position: [-2.85, -1.2, 0.7], kind: 'code', radius: 0.02},
+  {id: 'p03', label: 'P-03', position: [0.4, -2.2, -1.25], kind: 'code', radius: 0.019},
+  {id: 'p04', label: 'P-04', position: [2.85, 1.55, 0.45], kind: 'code', radius: 0.02},
+  {id: 'p05', label: 'P-05', position: [2.65, -0.4, 1.45], kind: 'code', radius: 0.019},
+  {id: 'p06', label: 'P-06', position: [-0.5, 0.1, -2.05], kind: 'code', radius: 0.018},
+  {id: 'p07', label: 'P-07', position: [1.0, -0.2, 1.95], kind: 'code', radius: 0.019},
+  {id: 'p08', label: 'P-08', position: [-1.95, 1.8, 1.5], kind: 'code', radius: 0.018},
+  {id: 'p09', label: 'P-09', position: [1.5, 1.85, -1.6], kind: 'code', radius: 0.018},
+  {id: 'p10', label: 'P-10', position: [-2.05, -1.75, -1.05], kind: 'code', radius: 0.018},
 ];
 
-const CONTEXT_EDGES: Array<[string, string]> = [
-  // Loop ↔ context spokes
+/** Seeded dust lattice — expands the living mesh beyond hub counts. */
+function buildDustField(count: number): NodeDef[] {
+  const out: NodeDef[] = [];
+  for (let i = 0; i < count; i += 1) {
+    // Deterministic pseudo-scatter (no Math.random — stable across remounts).
+    const s = ((i * 7919 + 104729) % 10007) / 10007;
+    const t = ((i * 104729 + 7919) % 9973) / 9973;
+    const u = ((i * 49999 + 3571) % 9967) / 9967;
+    const x = (s - 0.5) * 7.2;
+    const y = (t - 0.5) * 5.4;
+    const z = (u - 0.5) * 5.8;
+    out.push({
+      id: `d${String(i).padStart(2, '0')}`,
+      position: [x, y, z],
+      kind: 'dust',
+      radius: 0.007 + (i % 5) * 0.0012,
+    });
+  }
+  return out;
+}
+
+const DUST_NODES = buildDustField(72);
+const NODES: NodeDef[] = [...HUB_NODES, ...DUST_NODES];
+
+const HUB_EDGES: Array<[string, string]> = [
   ['research', 'lead'],
   ['research', 'p01'],
   ['research', 'p08'],
-  ['research', 'd01'],
-  ['research', 'd09'],
   ['brief', 'product'],
   ['brief', 'design'],
   ['brief', 'p09'],
-  ['brief', 'd02'],
-  ['brief', 'd15'],
   ['stills', 'design'],
   ['stills', 'p04'],
   ['stills', 'p07'],
-  ['stills', 'd03'],
-  ['stills', 'd18'],
   ['challenge', 'build'],
   ['challenge', 'p05'],
   ['challenge', 'p03'],
-  ['challenge', 'd05'],
-  ['challenge', 'd23'],
   ['ship', 'build'],
   ['ship', 'p03'],
   ['ship', 'p10'],
-  ['ship', 'd06'],
-  ['ship', 'd25'],
   ['recap', 'next'],
   ['recap', 'p02'],
   ['recap', 'p06'],
-  ['recap', 'd07'],
-  ['recap', 'd17'],
-  // Cluster webs
   ['next', 'p01'],
   ['next', 'p08'],
-  ['next', 'd08'],
-  ['next', 'd13'],
   ['design', 'p07'],
   ['design', 'p05'],
-  ['design', 'd04'],
-  ['design', 'd14'],
   ['product', 'p06'],
   ['product', 'p04'],
-  ['product', 'd03'],
-  ['product', 'd28'],
   ['lead', 'p06'],
   ['lead', 'p09'],
-  ['lead', 'd02'],
-  ['lead', 'd24'],
   ['build', 'p07'],
   ['build', 'p10'],
-  ['build', 'd05'],
-  ['build', 'd26'],
-  // Dust lattice — density without a skinny ring
-  ['d01', 'd13'],
-  ['d01', 'd24'],
-  ['d02', 'd15'],
-  ['d02', 'd20'],
-  ['d03', 'd10'],
-  ['d03', 'd18'],
-  ['d04', 'd14'],
-  ['d04', 'd21'],
-  ['d05', 'd14'],
-  ['d06', 'd12'],
-  ['d06', 'd19'],
-  ['d07', 'd11'],
-  ['d07', 'd27'],
-  ['d08', 'd17'],
-  ['d09', 'd22'],
-  ['d10', 'd19'],
-  ['d11', 'd16'],
-  ['d12', 'd25'],
-  ['d16', 'd20'],
-  ['d18', 'd21'],
-  ['d22', 'd27'],
-  ['d23', 'd26'],
-  ['p01', 'd22'],
-  ['p04', 'd21'],
-  ['p06', 'd11'],
-  ['p07', 'd10'],
+  // Cross-hub lattice (almost translucent)
+  ['lead', 'product'],
+  ['product', 'design'],
+  ['design', 'build'],
+  ['build', 'next'],
+  ['next', 'lead'],
+  ['research', 'brief'],
+  ['brief', 'stills'],
+  ['stills', 'challenge'],
+  ['challenge', 'ship'],
+  ['ship', 'recap'],
+  ['recap', 'research'],
 ];
+
+/**
+ * Nearest-neighbor spoke lattice across the full living mesh.
+ * Returns hub edges + dense dust/code connections (universe-of-stars density).
+ */
+function buildSpokePairs(
+  nodes: NodeDef[],
+  maxPerDust: number,
+): Array<[string, string]> {
+  const pairs: Array<[string, string]> = [...HUB_EDGES];
+  const seen = new Set(pairs.map(([a, b]) => (a < b ? `${a}|${b}` : `${b}|${a}`)));
+  const add = (a: string, b: string) => {
+    if (a === b) return;
+    const key = a < b ? `${a}|${b}` : `${b}|${a}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    pairs.push([a, b]);
+  };
+
+  const hubs = nodes.filter((n) => n.kind !== 'dust');
+  const dust = nodes.filter((n) => n.kind === 'dust');
+
+  for (const d of dust) {
+    const ranked = hubs
+      .map((h) => {
+        const dx = d.position[0] - h.position[0];
+        const dy = d.position[1] - h.position[1];
+        const dz = d.position[2] - h.position[2];
+        return {id: h.id, dist: dx * dx + dy * dy + dz * dz};
+      })
+      .sort((a, b) => a.dist - b.dist);
+    for (let i = 0; i < Math.min(2, ranked.length); i += 1) {
+      add(d.id, ranked[i].id);
+    }
+  }
+
+  for (let i = 0; i < dust.length; i += 1) {
+    const a = dust[i];
+    const ranked = dust
+      .map((b, j) => {
+        if (j === i) return null;
+        const dx = a.position[0] - b.position[0];
+        const dy = a.position[1] - b.position[1];
+        const dz = a.position[2] - b.position[2];
+        return {id: b.id, dist: dx * dx + dy * dy + dz * dz};
+      })
+      .filter((x): x is {id: string; dist: number} => x !== null)
+      .sort((x, y) => x.dist - y.dist);
+    for (let k = 0; k < Math.min(maxPerDust, ranked.length); k += 1) {
+      if (ranked[k].dist < 4.5) add(a.id, ranked[k].id);
+    }
+  }
+
+  return pairs;
+}
+
+const CONTEXT_EDGES = buildSpokePairs(NODES, 3);
 
 const SAGE = 0x8a9a8e;
 const SAGE_DIM = 0x4a554e;
@@ -184,33 +198,65 @@ const WASH = 0xffffff;
 const VOID = 0x030303;
 
 function makeLabelTexture(text: string, emphasis: boolean): THREE.CanvasTexture {
+  // Tight canvas + single crisp fill — no stroke/shadow (ghost FAIL).
+  const dpr = Math.min(
+    typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1,
+    2,
+  );
+  const fontPx = emphasis ? 26 : 18;
+  const font = emphasis
+    ? `500 ${fontPx}px Geist, ui-sans-serif, system-ui, sans-serif`
+    : `400 ${fontPx}px Geist, ui-sans-serif, system-ui, sans-serif`;
+  const measure = document.createElement('canvas').getContext('2d');
+  let textW = Math.ceil(text.length * fontPx * 0.62);
+  if (measure) {
+    measure.font = font;
+    textW = Math.ceil(measure.measureText(text).width);
+  }
+  const padX = 10;
+  const padY = 8;
   const canvas = document.createElement('canvas');
-  canvas.width = 256;
-  canvas.height = 64;
+  canvas.width = Math.max(32, Math.ceil((textW + padX * 2) * dpr));
+  canvas.height = Math.max(24, Math.ceil((fontPx + padY * 2) * dpr));
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     return new THREE.CanvasTexture(canvas);
   }
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.font = emphasis
-    ? '500 28px Geist, ui-sans-serif, system-ui, sans-serif'
-    : '400 22px Geist, ui-sans-serif, system-ui, sans-serif';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, canvas.width / dpr, canvas.height / dpr);
+  ctx.font = font;
   ctx.fillStyle = emphasis
-    ? 'rgba(242,241,236,0.92)'
-    : 'rgba(138,154,142,0.4)';
+    ? 'rgba(242,241,236,0.94)'
+    : 'rgba(138,154,142,0.38)';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
-  ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+  ctx.fillText(text, canvas.width / dpr / 2, canvas.height / dpr / 2);
   const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
   texture.needsUpdate = true;
+  texture.premultiplyAlpha = true;
   return texture;
 }
 
+function textureAspect(map: THREE.Texture | null | undefined, fallback: number): number {
+  const image = map?.image as {width?: number; height?: number} | undefined;
+  if (
+    image &&
+    typeof image.width === 'number' &&
+    typeof image.height === 'number' &&
+    image.height > 0
+  ) {
+    return image.width / image.height;
+  }
+  return fallback;
+}
+
 type DepthNode = {
-  mesh: THREE.Mesh;
+  mesh: THREE.Object3D;
   baseRadius: number;
   kind: NodeDef['kind'];
   id: string;
+  mat: THREE.MeshBasicMaterial;
 };
 
 export function ProcessInstrumentGraph({
@@ -242,7 +288,6 @@ export function ProcessInstrumentGraph({
   useEffect(() => {
     if (paintState !== 'fallback') return;
     const attempt = retryCountRef.current;
-    // Keep trying forever (backoff, then steady 4s) — unavailable as steady face = FAIL.
     const delay =
       attempt < 10 ? Math.min(350 + attempt * 450, 2800) : 4000;
     const id = window.setTimeout(() => {
@@ -406,7 +451,6 @@ export function ProcessInstrumentGraph({
             return;
           }
           ro.disconnect();
-          // Last resort: CSS min-height stage (~28rem) so we still paint 3D.
           resolve({
             width: Math.max(next.width, host.parentElement?.clientWidth || 360, 360),
             height: Math.max(next.height, 448),
@@ -425,15 +469,18 @@ export function ProcessInstrumentGraph({
         const portrait =
           height >= width * 0.95 ||
           (typeof window !== 'undefined' && window.innerWidth <= 900);
-        const dprCap = portrait ? 1.25 : 1.5;
-        const tubeSegs = portrait ? 96 : 160;
-        const tubeRadial = portrait ? 8 : 12;
-        const rainCount = portrait ? 40 : 72;
+        const dprCap = portrait ? 1.5 : 2;
+        const tubeSegs = portrait ? 64 : 96;
+        const tubeRadial = portrait ? 5 : 6;
+        const rainCount = portrait ? 24 : 40;
+        const starCount = portrait ? 520 : 980;
+        /** Active loop stroke — SoT thin wire (kill #10 fat glow ribbon). */
+        const strokeRadius = portrait ? 0.0065 : 0.0075;
+        const washRadius = strokeRadius * 0.38;
 
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(VOID, 0.032);
+        scene.fog = new THREE.FogExp2(VOID, 0.028);
 
-        // Strong oblique projection — land must read Z, not a flat polygon kit.
         const camera = new THREE.PerspectiveCamera(
           portrait ? 40 : 36,
           width / height,
@@ -456,7 +503,6 @@ export function ProcessInstrumentGraph({
           camera.updateProjectionMatrix();
         };
 
-        // Canvas-first: some mobile WebGL stacks fail if context is created off-DOM.
         canvas = document.createElement('canvas');
         canvas.style.display = 'block';
         canvas.style.width = '100%';
@@ -475,17 +521,41 @@ export function ProcessInstrumentGraph({
         renderer.setSize(width, height, false);
         renderer.setClearColor(VOID, 0);
 
-        // Soft volume light for path tubes only — nodes stay unlit Basic (no glow beads).
-        scene.add(new THREE.AmbientLight(0xb8c0ba, 0.55));
-        const key = new THREE.DirectionalLight(0xffffff, 0.55);
-        key.position.set(4.5, 5.8, 2.8);
-        scene.add(key);
-        const fill = new THREE.DirectionalLight(0x8a9a8e, 0.22);
-        fill.position.set(-3.8, -1.2, 2.2);
-        scene.add(fill);
+        scene.add(new THREE.AmbientLight(0xb8c0ba, 0.3));
 
         const root = new THREE.Group();
         scene.add(root);
+
+        // Quiet particle universe behind the mesh — atmosphere/depth only
+        // (DESIGN_AGENCY_BAR: NOT beads / confetti / glow-as-craft).
+        const starPositions = new Float32Array(starCount * 3);
+        for (let i = 0; i < starCount; i += 1) {
+          const s = ((i * 1103515245 + 12345) >>> 0) / 0xffffffff;
+          const t = ((i * 214013 + 2531011) >>> 0) / 0xffffffff;
+          const u = ((i * 1664525 + 1013904223) >>> 0) / 0xffffffff;
+          starPositions[i * 3] = (s - 0.5) * 14;
+          starPositions[i * 3 + 1] = (t - 0.5) * 10;
+          starPositions[i * 3 + 2] = (u - 0.5) * 12 - 1.5;
+        }
+        const starGeo = trackGeo(new THREE.BufferGeometry());
+        starGeo.setAttribute(
+          'position',
+          new THREE.BufferAttribute(starPositions, 3),
+        );
+        const starMat = trackMat(
+          new THREE.PointsMaterial({
+            color: 0x9aa89e,
+            size: portrait ? 0.018 : 0.022,
+            sizeAttenuation: true,
+            transparent: true,
+            opacity: 0.22,
+            depthWrite: false,
+            fog: true,
+          }),
+        );
+        const stars = new THREE.Points(starGeo, starMat);
+        stars.position.z = -0.4;
+        root.add(stars);
 
         // Atmosphere rain codes (≤10% gray).
         const rain = new THREE.Group();
@@ -493,7 +563,7 @@ export function ProcessInstrumentGraph({
           new THREE.MeshBasicMaterial({
             color: 0x6a736c,
             transparent: true,
-            opacity: 0.08,
+            opacity: 0.07,
           }),
         );
         for (let i = 0; i < rainCount; i += 1) {
@@ -515,65 +585,92 @@ export function ProcessInstrumentGraph({
         const nodeMap = new Map<string, THREE.Vector3>();
         const labelSprites = new Map<string, THREE.Sprite>();
         const depthNodes: DepthNode[] = [];
-        // Low-seg spheres — ticks only; Cos FAIL on glowing tube beads.
-        const sharedSphere = trackGeo(new THREE.SphereGeometry(1, 8, 8));
+        const sharedSphere = trackGeo(new THREE.SphereGeometry(1, 10, 10));
+        // Quiet hollow SoT ring for loop hubs (not filled glow bead).
+        const sharedRing = trackGeo(new THREE.TorusGeometry(1, 0.14, 6, 28));
 
         for (const node of NODES) {
           const pos = new THREE.Vector3(...node.position);
           nodeMap.set(node.id, pos);
 
           const isLoop = node.kind === 'loop';
-          // Loop + context: labels only — no sphere meshes on the path (Cos: no
-          // glowing bead/sphere on the tube). Codes/dust keep tiny unlit ticks.
-          if (node.kind === 'code' || node.kind === 'dust') {
-            const color = node.kind === 'code' ? SAGE_DIM : SAGE_DUST;
-            const opacity = node.kind === 'code' ? 0.4 : 0.22;
-            const mat = trackMat(
-              new THREE.MeshBasicMaterial({
-                color,
-                transparent: true,
-                opacity,
-                depthWrite: node.kind !== 'dust',
-              }),
-            );
-            const mesh = new THREE.Mesh(sharedSphere, mat);
-            mesh.position.copy(pos);
-            mesh.scale.setScalar(node.radius);
-            root.add(mesh);
-            depthNodes.push({
-              mesh,
-              baseRadius: node.radius,
-              kind: node.kind,
-              id: node.id,
-            });
+          const color =
+            node.kind === 'loop'
+              ? 0xe6e8e2
+              : node.kind === 'context'
+                ? 0x7a867e
+                : node.kind === 'code'
+                  ? SAGE_DIM
+                  : SAGE_DUST;
+          const opacity =
+            node.kind === 'loop'
+              ? 0.9
+              : node.kind === 'context'
+                ? 0.58
+                : node.kind === 'code'
+                  ? 0.38
+                  : 0.2;
+
+          const mat = trackMat(
+            new THREE.MeshBasicMaterial({
+              color,
+              transparent: true,
+              opacity,
+              depthWrite: node.kind !== 'dust',
+              wireframe: false,
+            }),
+          );
+
+          let mesh: THREE.Object3D;
+          if (isLoop) {
+            // Hollow quiet ring — SoT instrument hub (Apple-clean, not a bead).
+            const ring = new THREE.Mesh(sharedRing, mat);
+            ring.scale.setScalar(node.radius);
+            ring.position.copy(pos);
+            mesh = ring;
+          } else {
+            const body = new THREE.Mesh(sharedSphere, mat);
+            body.position.copy(pos);
+            body.scale.setScalar(node.radius);
+            mesh = body;
           }
+          root.add(mesh);
+          depthNodes.push({
+            mesh,
+            baseRadius: node.radius,
+            kind: node.kind,
+            id: node.id,
+            mat,
+          });
 
           if (node.label) {
             const labelMap = trackTex(makeLabelTexture(node.label, isLoop));
+            const aspect = textureAspect(labelMap, isLoop ? 4 : 3.2);
+            const spriteH = isLoop ? 0.2 : node.kind === 'context' ? 0.15 : 0.12;
             const sprite = new THREE.Sprite(
               trackMat(
                 new THREE.SpriteMaterial({
                   map: labelMap,
                   transparent: true,
-                  depthTest: false,
-                  opacity: isLoop ? 1 : node.kind === 'context' ? 0.7 : 0.45,
+                  depthTest: true,
+                  depthWrite: false,
+                  fog: false,
+                  alphaTest: 0.08,
+                  opacity: isLoop ? 1 : node.kind === 'context' ? 0.58 : 0.36,
                 }),
               ),
             );
             sprite.position
               .copy(pos)
-              .add(new THREE.Vector3(0, isLoop ? 0.17 : 0.11, 0.04));
-            sprite.scale.set(
-              isLoop ? 1.05 : 0.7,
-              isLoop ? 0.26 : 0.18,
-              1,
-            );
+              .add(new THREE.Vector3(0, isLoop ? 0.17 : 0.1, 0.02));
+            sprite.scale.set(spriteH * aspect, spriteH, 1);
+            sprite.renderOrder = isLoop ? 3 : 1;
             root.add(sprite);
             labelSprites.set(node.id, sprite);
           }
         }
 
-        // Dense spoke cloud (Line segments — force-graph lattice).
+        // Almost-translucent spoke cloud (hub↔hub + dense dust lattice).
         const spokeSegs: Array<{a: THREE.Vector3; b: THREE.Vector3}> = [];
         const spokePositions: number[] = [];
         for (const [a, b] of CONTEXT_EDGES) {
@@ -592,15 +689,14 @@ export function ProcessInstrumentGraph({
           new THREE.LineBasicMaterial({
             color: SAGE_DIM,
             transparent: true,
-            opacity: 0.28,
+            opacity: 0.07,
           }),
         );
         root.add(new THREE.LineSegments(spokeGeo, spokeMat));
 
         /**
-         * Faint white wash pulses traveling ALONG strokes (inside the line) —
-         * DESIGN_AGENCY_BAR: luminance in-path only, no bead objects / glow-as-craft.
-         * Y-up open cylinder; placePulse scales Y as travel length (do NOT rotateX).
+         * VERY FAINT + HAZY data pulses — staggered intervals across MANY spokes.
+         * Inside thin strokes only; not one fat static wash; not beads.
          */
         type StrokePulse = {
           mesh: THREE.Mesh;
@@ -609,12 +705,16 @@ export function ProcessInstrumentGraph({
           speed: number;
           kind: 'spoke' | 'loop';
           segIndex: number;
+          haze: number;
         };
         const pulseGeo = trackGeo(
-          new THREE.CylinderGeometry(1, 1, 1, 6, 1, true),
+          new THREE.CylinderGeometry(1, 1, 1, 5, 1, true),
         );
         const strokePulses: StrokePulse[] = [];
-        const pulseCount = Math.min(spokeSegs.length, 28);
+        const pulseCount = Math.min(
+          spokeSegs.length,
+          portrait ? 36 : 56,
+        );
         for (let i = 0; i < pulseCount; i += 1) {
           const mat = trackMat(
             new THREE.MeshBasicMaterial({
@@ -623,21 +723,23 @@ export function ProcessInstrumentGraph({
               opacity: 0,
               depthWrite: false,
               depthTest: true,
+              blending: THREE.AdditiveBlending,
             }),
           );
           const mesh = new THREE.Mesh(pulseGeo, mat);
           root.add(mesh);
+          // Staggered phases + irregular speeds = different intervals (Paul LOCK).
           strokePulses.push({
             mesh,
             mat,
-            phase: (i * 0.113) % 1,
-            speed: 0.22 + (i % 7) * 0.035,
+            phase: (i * 0.173 + (i % 9) * 0.041) % 1,
+            speed: 0.045 + (i % 11) * 0.011 + (i % 3) * 0.007,
             kind: 'spoke',
             segIndex: i % spokeSegs.length,
+            haze: 0.55 + (i % 5) * 0.08,
           });
         }
-        // Traveling wash dashes on the active loop path (inside the stroke).
-        for (let i = 0; i < 7; i += 1) {
+        for (let i = 0; i < 4; i += 1) {
           const mat = trackMat(
             new THREE.MeshBasicMaterial({
               color: WASH,
@@ -645,6 +747,7 @@ export function ProcessInstrumentGraph({
               opacity: 0,
               depthWrite: false,
               depthTest: true,
+              blending: THREE.AdditiveBlending,
             }),
           );
           const mesh = new THREE.Mesh(pulseGeo, mat);
@@ -652,10 +755,11 @@ export function ProcessInstrumentGraph({
           strokePulses.push({
             mesh,
             mat,
-            phase: i / 7,
-            speed: 0.16 + i * 0.012,
+            phase: i / 4 + 0.07,
+            speed: 0.055 + i * 0.013,
             kind: 'loop',
             segIndex: i,
+            haze: 0.7,
           });
         }
         const pulseFrom = new THREE.Vector3();
@@ -664,7 +768,7 @@ export function ProcessInstrumentGraph({
         const pulseDir = new THREE.Vector3();
         const yAxis = new THREE.Vector3(0, 1, 0);
 
-        // Active process path: ONE closed tube + white wash INSIDE (no open-end beads).
+        // Thin closed process stroke + faint in-stroke wash (not fat glow ribbon).
         const loopPts: THREE.Vector3[] = [];
         for (const id of LOOP_ORDER) {
           const p = nodeMap.get(id);
@@ -674,13 +778,13 @@ export function ProcessInstrumentGraph({
           loopPts,
           true,
           'catmullrom',
-          0.45,
+          0.1,
         );
         const strokeMat = trackMat(
-          new THREE.MeshLambertMaterial({
+          new THREE.MeshBasicMaterial({
             color: SAGE,
             transparent: true,
-            opacity: 0.78,
+            opacity: 0.82,
             depthWrite: false,
           }),
         );
@@ -688,7 +792,7 @@ export function ProcessInstrumentGraph({
           new THREE.MeshBasicMaterial({
             color: WASH,
             transparent: true,
-            opacity: 0.55,
+            opacity: 0.1,
             depthWrite: false,
           }),
         );
@@ -698,7 +802,7 @@ export function ProcessInstrumentGraph({
               new THREE.TubeGeometry(
                 closedLoop,
                 tubeSegs,
-                0.038,
+                strokeRadius,
                 tubeRadial,
                 true,
               ),
@@ -712,8 +816,8 @@ export function ProcessInstrumentGraph({
               new THREE.TubeGeometry(
                 closedLoop,
                 tubeSegs,
-                0.015,
-                Math.max(6, tubeRadial - 2),
+                washRadius,
+                Math.max(4, tubeRadial - 1),
                 true,
               ),
             ),
@@ -721,7 +825,6 @@ export function ProcessInstrumentGraph({
           ),
         );
 
-        // Neighbor accents: mid-span only (no ends at joints).
         const neighborMats: THREE.MeshBasicMaterial[] = [];
         for (let i = 0; i < LOOP_ORDER.length; i += 1) {
           const a = nodeMap.get(LOOP_ORDER[i]);
@@ -729,7 +832,7 @@ export function ProcessInstrumentGraph({
           if (!a || !b) continue;
           const p0 = a.clone().lerp(b, 0.22);
           const p1 = a.clone().lerp(b, 0.5);
-          p1.z += 0.18;
+          p1.z += 0.1;
           const p2 = a.clone().lerp(b, 0.78);
           const mat = trackMat(
             new THREE.MeshBasicMaterial({
@@ -744,9 +847,9 @@ export function ProcessInstrumentGraph({
               trackGeo(
                 new THREE.TubeGeometry(
                   new THREE.CatmullRomCurve3([p0, p1, p2]),
-                  14,
-                  0.016,
-                  6,
+                  12,
+                  strokeRadius * 0.8,
+                  5,
                   false,
                 ),
               ),
@@ -773,7 +876,7 @@ export function ProcessInstrumentGraph({
           u: number,
           radius: number,
           peakOpacity: number,
-          half = 0.12,
+          half = 0.14,
         ) => {
           const u0 = Math.max(0, u - half);
           const u1 = Math.min(1, u + half);
@@ -792,10 +895,12 @@ export function ProcessInstrumentGraph({
           } else {
             pulse.mesh.quaternion.setFromUnitVectors(yAxis, pulseDir);
           }
-          // Y = length along stroke; X/Z = thin wash radius (not a bead).
           pulse.mesh.scale.set(radius, len, radius);
+          // Soft hazy envelope — faint peak, soft falloff.
           const travel = Math.sin(u * Math.PI);
-          pulse.mat.opacity = peakOpacity * (0.4 + 0.6 * travel);
+          const breath = 0.55 + 0.45 * Math.sin(u * Math.PI * 2 + pulse.phase * 6);
+          pulse.mat.opacity =
+            peakOpacity * pulse.haze * travel * breath * 0.55;
         };
 
         const animate = () => {
@@ -806,12 +911,15 @@ export function ProcessInstrumentGraph({
             const {mode: m, activeChapter: chapter, shipTwitch: twitch} =
               stateRef.current;
 
-            // Continuous slight drift — living instrument.
+            // Continuous slight drift — living breathing ecosystem.
             root.rotation.y = Math.sin(t * 0.1) * 0.2 + 0.55;
             root.rotation.x = Math.sin(t * 0.075) * 0.14 + 0.28;
             root.rotation.z = Math.cos(t * 0.065) * 0.055;
             root.position.y = Math.sin(t * 0.13) * 0.09;
             root.position.x = Math.cos(t * 0.095) * 0.08;
+            stars.rotation.y = t * 0.012;
+            stars.rotation.x = Math.sin(t * 0.04) * 0.02;
+            starMat.opacity = 0.18 + Math.sin(t * 0.35) * 0.04;
 
             const inspect = m === 'inspect';
             const hover = m === 'hover' || inspect;
@@ -827,15 +935,17 @@ export function ProcessInstrumentGraph({
               camera.lookAt(0.1, 0.05, 0);
             }
 
-            // Perspective projection: nearer nodes larger — SoT depth cue (tight clamp).
             for (const dn of depthNodes) {
               dn.mesh.getWorldPosition(worldPos);
               const dist = Math.max(camera.position.distanceTo(worldPos), 0.8);
               const persp = THREE.MathUtils.clamp(refDist / dist, 0.55, 1.35);
               dn.mesh.scale.setScalar(dn.baseRadius * persp);
+              // Keep hollow rings readable toward camera (quiet, not spinning spectacle).
+              if (dn.kind === 'loop') {
+                dn.mesh.lookAt(camera.position);
+              }
             }
 
-            // Faint white wash pulses traveling along spokes + loop (inside strokes).
             for (const pulse of strokePulses) {
               const u = (t * pulse.speed + pulse.phase) % 1;
               if (pulse.kind === 'spoke') {
@@ -849,12 +959,12 @@ export function ProcessInstrumentGraph({
                   seg.a,
                   seg.b,
                   u,
-                  hover ? 0.009 : 0.0075,
-                  hover ? 0.55 : 0.78,
-                  0.14,
+                  hover ? 0.0026 : 0.0022,
+                  hover ? 0.09 : 0.12,
+                  0.16,
                 );
               } else {
-                const half = 0.045;
+                const half = 0.04;
                 const u0 = (u - half + 1) % 1;
                 const u1 = (u + half) % 1;
                 closedLoop.getPointAt(u0, pulseFrom);
@@ -868,22 +978,26 @@ export function ProcessInstrumentGraph({
                 } else {
                   pulse.mesh.quaternion.setFromUnitVectors(yAxis, pulseDir);
                 }
-                // Short dash along path — wash traveling inside the stroke.
                 const dashLen = Math.max(
                   pulseFrom.distanceTo(pulseTo),
-                  0.12,
+                  0.1,
                 );
-                pulse.mesh.scale.set(0.012, dashLen, 0.012);
+                pulse.mesh.scale.set(
+                  washRadius * 0.9,
+                  dashLen,
+                  washRadius * 0.9,
+                );
+                const breath =
+                  0.4 + 0.6 * Math.sin(u * Math.PI * 2 + pulse.phase * 4);
                 pulse.mat.opacity =
-                  (hover ? 0.5 : 0.82) *
-                  (0.55 + 0.45 * Math.sin(u * Math.PI * 2));
+                  (hover ? 0.1 : 0.14) * pulse.haze * breath * 0.7;
               }
             }
 
             if (hover && chapter) {
-              strokeMat.opacity = 0.32;
-              washMat.opacity = 0.2;
-              spokeMat.opacity = 0.4;
+              strokeMat.opacity = 0.4;
+              washMat.opacity = 0.08;
+              spokeMat.opacity = 0.12;
               for (let i = 0; i < LOOP_ORDER.length; i += 1) {
                 const id = LOOP_ORDER[i];
                 const isNeighbor =
@@ -891,10 +1005,9 @@ export function ProcessInstrumentGraph({
                   LOOP_ORDER[(i + LOOP_ORDER.length - 1) % LOOP_ORDER.length] ===
                     chapter ||
                   LOOP_ORDER[(i + 1) % LOOP_ORDER.length] === chapter;
-                neighborMats[i].opacity = isNeighbor ? 0.65 : 0;
+                neighborMats[i].opacity = isNeighbor ? 0.28 : 0;
               }
               for (const dn of depthNodes) {
-                const mat = dn.mesh.material as THREE.MeshBasicMaterial;
                 const near =
                   dn.id === chapter ||
                   dn.kind === 'dust' ||
@@ -903,33 +1016,32 @@ export function ProcessInstrumentGraph({
                       (a === chapter && b === dn.id) ||
                       (b === chapter && a === dn.id),
                   );
-                mat.opacity = near
+                dn.mat.opacity = near
                   ? dn.kind === 'loop'
-                    ? 0.9
+                    ? 0.95
                     : dn.kind === 'dust'
-                      ? 0.2
+                      ? 0.14
                       : 0.65
                   : dn.kind === 'dust'
-                    ? 0.06
-                    : 0.18;
+                    ? 0.04
+                    : 0.14;
               }
             } else {
-              strokeMat.opacity = 0.76;
-              washMat.opacity = 0.52 + Math.sin(t * 0.85) * 0.1;
-              spokeMat.opacity = 0.3;
+              strokeMat.opacity = 0.82;
+              washMat.opacity = 0.09 + Math.sin(t * 0.45) * 0.025;
+              spokeMat.opacity = 0.07;
               for (const mat of neighborMats) {
                 mat.opacity = 0;
               }
               for (const dn of depthNodes) {
-                const mat = dn.mesh.material as THREE.MeshBasicMaterial;
-                mat.opacity =
+                dn.mat.opacity =
                   dn.kind === 'loop'
-                    ? 0.85
+                    ? 0.9
                     : dn.kind === 'context'
-                      ? 0.55
+                      ? 0.58
                       : dn.kind === 'code'
-                        ? 0.4
-                        : 0.22;
+                        ? 0.38
+                        : 0.2;
               }
             }
 
@@ -939,9 +1051,10 @@ export function ProcessInstrumentGraph({
               labelMat.opacity = twitch
                 ? 0.7 + Math.sin(t * 10) * 0.3
                 : 1;
-              const base = 1.05;
-              const pulse = twitch ? 1 + Math.sin(t * 10) * 0.06 : 1;
-              shipLabel.scale.set(base * pulse, 0.26 * pulse, 1);
+              const baseH = 0.2;
+              const aspect = textureAspect(labelMat.map, 3.2);
+              const pulse = twitch ? 1 + Math.sin(t * 10) * 0.04 : 1;
+              shipLabel.scale.set(baseH * aspect * pulse, baseH * pulse, 1);
             }
 
             rain.rotation.y = t * 0.016;
@@ -959,7 +1072,6 @@ export function ProcessInstrumentGraph({
           return;
         }
 
-        // Confirm a frame actually paints before claiming live.
         renderer.render(scene, camera);
         setPaintState('live');
         retryCountRef.current = 0;
