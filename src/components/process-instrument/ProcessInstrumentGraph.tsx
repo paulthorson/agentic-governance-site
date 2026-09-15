@@ -523,42 +523,30 @@ export function ProcessInstrumentGraph({
           nodeMap.set(node.id, pos);
 
           const isLoop = node.kind === 'loop';
-          const color =
-            node.kind === 'loop'
-              ? SAGE
-              : node.kind === 'context'
-                ? 0x6e7a72
-                : node.kind === 'code'
-                  ? SAGE_DIM
-                  : SAGE_DUST;
-          const opacity =
-            node.kind === 'loop'
-              ? 0.85
-              : node.kind === 'context'
-                ? 0.55
-                : node.kind === 'code'
-                  ? 0.4
-                  : 0.22;
-
-          // Unlit filled ticks — MeshBasicMaterial so lights never make joint beads.
-          const mat = trackMat(
-            new THREE.MeshBasicMaterial({
-              color,
-              transparent: true,
-              opacity,
-              depthWrite: node.kind !== 'dust',
-            }),
-          );
-          const mesh = new THREE.Mesh(sharedSphere, mat);
-          mesh.position.copy(pos);
-          mesh.scale.setScalar(node.radius);
-          root.add(mesh);
-          depthNodes.push({
-            mesh,
-            baseRadius: node.radius,
-            kind: node.kind,
-            id: node.id,
-          });
+          // Loop + context: labels only — no sphere meshes on the path (Cos: no
+          // glowing bead/sphere on the tube). Codes/dust keep tiny unlit ticks.
+          if (node.kind === 'code' || node.kind === 'dust') {
+            const color = node.kind === 'code' ? SAGE_DIM : SAGE_DUST;
+            const opacity = node.kind === 'code' ? 0.4 : 0.22;
+            const mat = trackMat(
+              new THREE.MeshBasicMaterial({
+                color,
+                transparent: true,
+                opacity,
+                depthWrite: node.kind !== 'dust',
+              }),
+            );
+            const mesh = new THREE.Mesh(sharedSphere, mat);
+            mesh.position.copy(pos);
+            mesh.scale.setScalar(node.radius);
+            root.add(mesh);
+            depthNodes.push({
+              mesh,
+              baseRadius: node.radius,
+              kind: node.kind,
+              id: node.id,
+            });
+          }
 
           if (node.label) {
             const labelMap = trackTex(makeLabelTexture(node.label, isLoop));
@@ -954,14 +942,6 @@ export function ProcessInstrumentGraph({
               const base = 1.05;
               const pulse = twitch ? 1 + Math.sin(t * 10) * 0.06 : 1;
               shipLabel.scale.set(base * pulse, 0.26 * pulse, 1);
-            }
-            const shipNode = depthNodes.find((d) => d.id === 'ship');
-            if (shipNode && twitch) {
-              const pulse = 1 + Math.sin(t * 10) * 0.12;
-              shipNode.mesh.getWorldPosition(worldPos);
-              const dist = Math.max(camera.position.distanceTo(worldPos), 0.8);
-              const persp = THREE.MathUtils.clamp(refDist / dist, 0.55, 1.35);
-              shipNode.mesh.scale.setScalar(shipNode.baseRadius * persp * pulse);
             }
 
             rain.rotation.y = t * 0.016;
