@@ -98,15 +98,19 @@
 @media (max-width: 900px) {
   :root {
     /* Land mobile SoT: full force-graph below chapters (not a cropped arc). */
-    --ag-instrument-min-h: max(26rem, 85vw);
+    --ag-instrument-min-h: max(28rem, 92vw);
   }
 
   .ag-void-body {
     flex-direction: column !important;
   }
 
-  .ag-instrument-stage {
+  /* Explicit height — %/absolute WebGL hosts collapse on iOS when only min-height. */
+  .ag-instrument-stage,
+  .ag-instrument-canvas,
+  .ag-instrument-stage > div {
     min-height: var(--ag-instrument-min-h);
+    height: var(--ag-instrument-min-h);
     width: 100%;
   }
 }
