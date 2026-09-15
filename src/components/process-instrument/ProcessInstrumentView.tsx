@@ -318,6 +318,7 @@ export function ProcessInstrumentView({
             minHeight: 'var(--ag-instrument-min-h)',
             position: 'relative',
             alignSelf: 'stretch',
+            overflow: 'visible',
           }}
         >
           <InstrumentErrorBoundary className="ag-instrument-canvas">
