@@ -497,7 +497,7 @@ export function ProcessInstrumentGraph({
         stars.position.z = -0.6;
         root.add(stars);
 
-        // Dense Obsidian field points (filled) — universe-of-stars node density.
+        // Dense Obsidian field — quiet star dust ONLY (hollow rings carry node craft).
         const fieldPositions = new Float32Array(fieldPointCount * 3);
         for (let i = 0; i < fieldPointCount; i += 1) {
           const s = ((i * 2654435761 + 97) >>> 0) / 0xffffffff;
@@ -514,11 +514,11 @@ export function ProcessInstrumentGraph({
         );
         const fieldMat = trackMat(
           new THREE.PointsMaterial({
-            color: 0xb0bbb4,
-            size: portrait ? 0.028 : 0.032,
+            color: 0x6a736c,
+            size: portrait ? 0.012 : 0.014,
             sizeAttenuation: true,
             transparent: true,
-            opacity: 0.42,
+            opacity: 0.2,
             depthWrite: false,
           }),
         );
@@ -564,55 +564,60 @@ export function ProcessInstrumentGraph({
           'position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2;';
         host.appendChild(labelLayer);
 
-        const sharedSphere = trackGeo(new THREE.SphereGeometry(1, 12, 12));
-        // Quiet hollow SoT ring (RingGeometry billboard) — not a filled glow bead.
-        const sharedRing = trackGeo(new THREE.RingGeometry(0.72, 1, 28));
+        // Quiet hollow SoT rings — primary + subordinate (NOT filled beads / bare ribbon).
+        const sharedRing = trackGeo(new THREE.RingGeometry(0.72, 1, 32));
+        const subordinateRing = trackGeo(new THREE.RingGeometry(0.7, 1, 24));
 
         for (const node of NODES) {
           const pos = new THREE.Vector3(...node.position);
           nodeMap.set(node.id, pos);
 
-          // Dust density lives in Points field — skip per-dust mesh blobs.
-          if (node.kind === 'dust') continue;
-
           const isLoop = node.kind === 'loop';
+          const isDust = node.kind === 'dust';
           const color =
             node.kind === 'loop'
               ? 0xe8eae4
               : node.kind === 'context'
-                ? 0x7a867e
-                : SAGE_DIM;
+                ? 0x9aa89e
+                : node.kind === 'code'
+                  ? 0x6e7a72
+                  : 0x4a554e;
           const opacity =
-            node.kind === 'loop' ? 0.92 : node.kind === 'context' ? 0.55 : 0.4;
+            node.kind === 'loop'
+              ? 0.94
+              : node.kind === 'context'
+                ? 0.55
+                : node.kind === 'code'
+                  ? 0.42
+                  : 0.28;
+          const radius =
+            node.kind === 'loop'
+              ? node.radius
+              : node.kind === 'context'
+                ? node.radius * 0.85
+                : node.kind === 'code'
+                  ? node.radius * 0.75
+                  : node.radius * 0.9;
 
           const mat = trackMat(
             new THREE.MeshBasicMaterial({
               color,
               transparent: true,
               opacity,
-              depthWrite: true,
-              side: isLoop ? THREE.DoubleSide : THREE.FrontSide,
+              depthWrite: !isDust,
+              side: THREE.DoubleSide,
             }),
           );
-
-          let mesh: THREE.Object3D;
-          if (isLoop) {
-            const ring = new THREE.Mesh(sharedRing, mat);
-            ring.scale.setScalar(node.radius);
-            ring.position.copy(pos);
-            mesh = ring;
-          } else {
-            const body = new THREE.Mesh(sharedSphere, mat);
-            body.position.copy(pos);
-            body.scale.setScalar(node.radius * (node.kind === 'code' ? 0.85 : 1));
-            mesh = body;
-          }
-          root.add(mesh);
+          const ring = new THREE.Mesh(
+            isLoop ? sharedRing : subordinateRing,
+            mat,
+          );
+          ring.scale.setScalar(radius);
+          ring.position.copy(pos);
+          root.add(ring);
           depthNodes.push({
-            mesh,
-            baseRadius: isLoop
-              ? node.radius
-              : node.radius * (node.kind === 'code' ? 0.85 : 1),
+            mesh: ring,
+            baseRadius: radius,
             kind: node.kind,
             id: node.id,
             mat,
@@ -660,6 +665,40 @@ export function ProcessInstrumentGraph({
               emphasis,
             });
           }
+        }
+
+        // Extra dense subordinate hollow rings (SoT universe density — quiet, not beads).
+        const extraRingCount = portrait ? 90 : 140;
+        for (let i = 0; i < extraRingCount; i += 1) {
+          const s = ((i * 2654435761 + 97) >>> 0) / 0xffffffff;
+          const t = ((i * 1597334677 + 13) >>> 0) / 0xffffffff;
+          const u = ((i * 2246822519 + 41) >>> 0) / 0xffffffff;
+          const pos = new THREE.Vector3(
+            (s - 0.5) * 7.6,
+            (t - 0.5) * 5.8,
+            (u - 0.5) * 6.0,
+          );
+          const mat = trackMat(
+            new THREE.MeshBasicMaterial({
+              color: 0x4a554e,
+              transparent: true,
+              opacity: 0.18 + (i % 5) * 0.02,
+              depthWrite: false,
+              side: THREE.DoubleSide,
+            }),
+          );
+          const ring = new THREE.Mesh(subordinateRing, mat);
+          const r = 0.012 + (i % 7) * 0.002;
+          ring.scale.setScalar(r);
+          ring.position.copy(pos);
+          root.add(ring);
+          depthNodes.push({
+            mesh: ring,
+            baseRadius: r,
+            kind: 'dust',
+            id: `x${i}`,
+            mat,
+          });
         }
 
         // Almost-translucent spoke cloud (hub↔hub + dense dust lattice).
@@ -892,10 +931,8 @@ export function ProcessInstrumentGraph({
               const dist = Math.max(camera.position.distanceTo(worldPos), 0.8);
               const persp = THREE.MathUtils.clamp(refDist / dist, 0.55, 1.35);
               dn.mesh.scale.setScalar(dn.baseRadius * persp);
-              // Billboard hollow rings toward camera (quiet SoT hubs).
-              if (dn.kind === 'loop') {
-                dn.mesh.quaternion.copy(camera.quaternion);
-              }
+              // Billboard all hollow rings toward camera (quiet SoT hubs).
+              dn.mesh.quaternion.copy(camera.quaternion);
             }
 
             for (const pulse of strokePulses) {
@@ -966,8 +1003,12 @@ export function ProcessInstrumentGraph({
                 dn.mat.opacity = near
                   ? dn.kind === 'loop'
                     ? 0.95
-                    : 0.65
-                  : 0.14;
+                    : dn.kind === 'dust'
+                      ? 0.22
+                      : 0.6
+                  : dn.kind === 'dust'
+                    ? 0.08
+                    : 0.14;
               }
             } else {
               strokeMat.opacity = 0.9;
@@ -978,10 +1019,12 @@ export function ProcessInstrumentGraph({
               for (const dn of depthNodes) {
                 dn.mat.opacity =
                   dn.kind === 'loop'
-                    ? 0.92
+                    ? 0.94
                     : dn.kind === 'context'
                       ? 0.55
-                      : 0.4;
+                      : dn.kind === 'code'
+                        ? 0.42
+                        : 0.22;
               }
             }
 
